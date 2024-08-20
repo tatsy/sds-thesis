@@ -1,0 +1,18 @@
+[
+    // LaTeX
+    {
+        "key": "cmd+alt+c",
+        "command": "latex-workshop.clean",
+        "when": "resourceLangId == latex"
+    },
+    {
+        "key": "cmd+alt+k",
+        "command": "latex-workshop.kill",
+        "when": "resourceLangId == latex"
+    },
+    {
+        "key": "cmd+alt+s",
+        "command": "latex-workshop.synctex",
+        "when": "resourceLangId == latex"
+    }
+]
