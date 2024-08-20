@@ -1,0 +1,159 @@
+\documentclass[11pt,a4paper,twoside,openany]{book}
+\usepackage{thesds}
+
+% 図が多くビルドに時間がかかるときは
+% \documentclass[12pt,a4paper,twoside,openany,draft]{book}
+% のように\documentarticleのオプションに「draft」を追加する
+
+% ***** フォントについて *****
+% フォントに関してはGoogle NotoフォントのNotoフォントとSTIX Twoフォントを使用。
+% 日本語の部分には斜体は使えないので注意。
+% Noto Sans JP: https://fonts.google.com/noto/specimen/Noto+Sans+JP
+% Noto Serif JP: https://fonts.google.com/noto/specimen/Noto+Serif+JP
+% STIX Two Text: https://fonts.google.com/specimen/STIX+Two+Text
+
+% ***** 追加のパッケージ *****
+% ！注意！
+% グラフィクス用のpackageは既にusepackageしているので、
+% \usepackage[dvips]{graphics}などと書くとエラーになる
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{url}
+\usepackage{array}
+
+% ***** テーブル用のパッケージ *****
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs,siunitx}
+
+% ***** 数式をキレイにするパッケージ *****
+\usepackage{physics2}
+\usephysicsmodule{ab}
+
+% ***** argmin, argmax *****
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+
+% ***** BibTeXの設定 *****
+\usepackage[
+  backend=biber,
+  backref=true,
+  sortcites=true,
+  style=ieee,
+  citestyle=numeric,
+  maxbibnames=999,
+  mincitenames=999,
+  maxcitenames=999,
+  sorting=none,
+  url=false,
+  doi=true,
+  isbn=true
+]{biblatex}
+
+% backrefの表記を編集
+\DefineBibliographyStrings{english}{%
+  backrefpage = {cited on page},    % originally "cited on page"
+  backrefpages = {cited on pages},  % originally "cited on pages"
+}
+
+% 余計な項目を非表示にしておく (必要な場合はコメントアウトする)
+\AtEveryBibitem{
+  \clearfield{eprint}%
+  \clearfield{date}%
+  \clearfield{month}%
+  \clearfield{issn}%
+  \clearfield{series}%
+  \clearlist{address}%
+
+  % "book"以外から削除する項目
+  \ifentrytype{book}{}{
+    \clearfield{isbn}%
+    \clearname{editor}%
+    \clearlist{publisher}%
+  }
+}
+
+% BibTeXのソースを指定
+\addbibresource{references.bib}
+
+% ***** 画像を入れるフォルダの設定 *****
+\graphicspath{{figs}}
+
+% ***** タイトルページ *****
+\thesistype{令和〇年度~卒業論文}
+\title{タイトルを記入}
+\etitle{The English title goes here}
+\adjustspace{100truept} %英文タイトルと指導教員名の間の垂直余白長さの調整。小さい値であるほど余白が狭くなる。タイトルが複数行にわたる場合、値を小さくして調整
+\date{2025年1月1日}
+\affiliation{一橋大学ソーシャル・データサイエンス学部}
+\supervisor{〇〇 〇〇}  % 指導教員の名前
+\studentid{99-999999}
+\author{〇〇 〇〇}  % 自分の名前
+
+% ------------------------------------------------------------------------------
+% 実際の文章の開始
+% ------------------------------------------------------------------------------
+\begin{document}
+
+% ***** 表紙を出力 *****
+\frontmatter
+\maketitle
+
+% ***** 論文全体の概要 *****
+\begin{abstract}
+  論文全体の概要を書く。概要は、論文全体の内容がイメージできるものである必要があるので、提案法についてだけでなく、研究背景や、提案法に至る着想、提案法の中身、実験結果、展望も含め全体について簡潔に書くことを心がける。その際、多くのことを主張することは避けて、論文の最も重要な部分、例えば、研究上の新規性であったり、提案法により得られた有効な結果について重点的に述べる。時折、やたら研究背景が長く書いてある概要を見かけるが、最低でも自分が研究したことが半分以上は概要に入るようにする。
+\end{abstract}
+
+% ***** 目次たち *****
+\tableofcontents  % 目次
+\clearpage
+
+\listoffigures    % 図目次
+\clearpage
+
+\listoftables     % 表目次
+\clearpage
+
+% ------------------------------------------------------------------------------
+% 本文の開始
+% ------------------------------------------------------------------------------
+\mainmatter
+
+% 章ごとにファイルを分割すると良い
+% ルートのディレクトリが散らからないようにサブフォルダに入れる
+% 全体をコンパイルするには時間がかかるので執筆時は適宜、以下をコメントアウトする
+\input{chapters/intro}
+\input{chapters/changelog}
+\input{chapters/relwork}
+\input{chapters/method}
+\input{chapters/results}
+\input{chapters/conclusion}
+\input{chapters/acknowledge}
+
+% ------------------------------------------------------------------------------
+% 参考文献
+% ------------------------------------------------------------------------------
+
+% 今回のフォーマットはBibLaTeXを使っているが、普通にBibTeXを使う場合は
+% コメントされている部分を変更する
+
+% ***** BibTeX用 *****
+% \bibliographystyle{plain}
+% \bibliography{references}
+
+% ***** BibLaTeX用 *****
+\printbibliography[title=参考文献, heading=bibintoc]
+
+% ------------------------------------------------------------------------------
+% 付録
+% ------------------------------------------------------------------------------
+
+% 特になければ以下はコメントアウト
+\begin{appendices}
+  \input{chapters/appendix}
+  \input{chapters/selfcheck}
+\end{appendices}
+
+% ------------------------------------------------------------------------------
+% 論文の最後 (絶対消さない)
+\end{document}
