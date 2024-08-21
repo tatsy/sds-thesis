@@ -3,6 +3,7 @@
 Thumbs.db
 *.swp
 .DS_Store
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -15,7 +16,6 @@ Thumbs.db
 *.fot
 *.cb
 *.cb2
-.*.lb
 main.pdf
 
 ## Intermediate documents:
@@ -37,6 +37,7 @@ main.pdf
 *-blx.aux
 *-blx.bib
 *.run.xml
+*.bbl-SAVE-ERROR
 
 ## Build tool auxiliary files:
 *.fdb_latexmk

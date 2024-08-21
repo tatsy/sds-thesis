@@ -1,5 +1,6 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
 \usepackage{thesds}
+% \usepackage[english]{thesds} % for English
 
 % 図が多くビルドに時間がかかるときは
 % \documentclass[12pt,a4paper,twoside,openany,draft]{book}
@@ -86,8 +87,8 @@
 \adjustspace{100truept} %英文タイトルと指導教員名の間の垂直余白長さの調整。小さい値であるほど余白が狭くなる。タイトルが複数行にわたる場合、値を小さくして調整
 \date{2025年1月1日}
 \affiliation{一橋大学ソーシャル・データサイエンス学部}
-\supervisor{〇〇 〇〇}  % 指導教員の名前
-\studentid{99-999999}
+\supervisor{指導教員:~〇〇 〇〇}  % 指導教員の名前
+\studentid{学籍番号:~DM999999}
 \author{〇〇 〇〇}  % 自分の名前
 
 % ------------------------------------------------------------------------------
@@ -128,7 +129,13 @@
 \input{chapters/method}
 \input{chapters/results}
 \input{chapters/conclusion}
+
+% ------------------------------------------------------------------------------
+% 謝辞
+% ------------------------------------------------------------------------------
+\begin{acks}
 \input{chapters/acknowledge}
+\end{acks}
 
 % ------------------------------------------------------------------------------
 % 参考文献
@@ -142,7 +149,7 @@
 % \bibliography{references}
 
 % ***** BibLaTeX用 *****
-\printbibliography[title=参考文献, heading=bibintoc]
+\printbibliography[title=\biblioname,heading=bibintoc]
 
 % ------------------------------------------------------------------------------
 % 付録
