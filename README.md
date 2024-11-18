@@ -1,11 +1,19 @@
 卒業論文用LaTeXフォーマット
 ===========================
 
-TeX環境の用意
--------------
+事前準備
+---------
 
 TeXの環境はWindows、MacともにTexLiveをインストールするのがおすすめ (Macの場合はMacTexがTexLiveを利用している)。このテンプレートはLaTeX3を標準として、LuaLaTeX・XeLaTeXのいずれかを使って文書をビルドする。
 LaTeX3の利用にあたってTeXLiveは2021年以降のバージョンをインストールし、TexLive Managerを使って全てのパッケージを最新にアップデートしておくこと。
+
+### フォントのインストール
+
+フォントに関してはGoogle NotoフォントとSTIX Twoフォントを使用しています。事前に各自の環境にインストールしてください。なお、日本語の部分には斜体は使えないので注意してください。
+
+-Noto Sans JP: <https://fonts.google.com/noto/specimen/Noto+Sans+JP>
+-Noto Serif JP: <https://fonts.google.com/noto/specimen/Noto+Serif+JP>
+-STIX Two Text: <https://fonts.google.com/specimen/STIX+Two+Text>
 
 ### Overleafの使用
 
