@@ -11,9 +11,9 @@ LaTeX3の利用にあたってTeXLiveは2021年以降のバージョンをイン
 
 フォントに関してはGoogle NotoフォントとSTIX Twoフォントを使用しています。事前に各自の環境にインストールしてください。なお、日本語の部分には斜体は使えないので注意してください。
 
--Noto Sans JP: <https://fonts.google.com/noto/specimen/Noto+Sans+JP>
--Noto Serif JP: <https://fonts.google.com/noto/specimen/Noto+Serif+JP>
--STIX Two Text: <https://fonts.google.com/specimen/STIX+Two+Text>
+- Noto Sans JP: <https://fonts.google.com/noto/specimen/Noto+Sans+JP>
+- Noto Serif JP: <https://fonts.google.com/noto/specimen/Noto+Serif+JP>
+- STIX Two Text: <https://fonts.google.com/specimen/STIX+Two+Text>
 
 ### Overleafの使用
 
