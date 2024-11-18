@@ -1,5 +1,6 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
-\usepackage{thesds}
+\usepackage[nologo]{thesds}
+% \usepackage[nologo]{thesds} % ロゴを非表示
 % \usepackage[english]{thesds} % for English
 
 % 図が多くビルドに時間がかかるときは
@@ -7,8 +8,9 @@
 % のように\documentarticleのオプションに「draft」を追加する
 
 % ***** フォントについて *****
-% フォントに関してはGoogle NotoフォントのNotoフォントとSTIX Twoフォントを使用。
-% 日本語の部分には斜体は使えないので注意。
+% フォントに関してはGoogle NotoフォントのNotoフォントとSTIX Twoフォントを使用しています。
+% 事前に各自の環境にインストールしてください。
+% なお、日本語の部分には斜体は使えないので注意してください。
 % Noto Sans JP: https://fonts.google.com/noto/specimen/Noto+Sans+JP
 % Noto Serif JP: https://fonts.google.com/noto/specimen/Noto+Serif+JP
 % STIX Two Text: https://fonts.google.com/specimen/STIX+Two+Text
@@ -17,10 +19,13 @@
 % ！注意！
 % グラフィクス用のpackageは既にusepackageしているので、
 % \usepackage[dvips]{graphics}などと書くとエラーになる
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{mathtools}
 \usepackage{url}
 \usepackage{array}
+\usepackage{siunitx}
 
 % ***** テーブル用のパッケージ *****
 \usepackage{tabularray}
@@ -81,15 +86,17 @@
 \graphicspath{{figs}}
 
 % ***** タイトルページ *****
-\thesistype{令和〇年度~卒業論文}
-\title{タイトルを記入}
-\etitle{The English title goes here}
-\adjustspace{100truept} %英文タイトルと指導教員名の間の垂直余白長さの調整。小さい値であるほど余白が狭くなる。タイトルが複数行にわたる場合、値を小さくして調整
-\date{2025年1月1日}
-\affiliation{一橋大学ソーシャル・データサイエンス学部}
-\supervisor{指導教員:~〇〇 〇〇}  % 指導教員の名前
-\studentid{学籍番号:~DM999999}
-\author{〇〇 〇〇}  % 自分の名前
+\thesistype{令和6年度~修士論文}
+\title{卒業・修了論文の書き方}
+\etitle{How to Write a Graduation Thesis}
+\author{山田 太郎}  % 自分の名前
+\eauthor{Taro Yamada}  % 自分の名前 (英語)
+\affiliation{一橋大学ソーシャル・データサイエンス研究科}
+\eaffiliation{Graduate of Social Data Science\\Hitotsubashi University}
+\date{2025年3月 提出}
+\edate{March, 2025}
+%日本語タイトルと英語タイトルの間のスペース
+\adjustspace{100truept}
 
 % ------------------------------------------------------------------------------
 % 実際の文章の開始
@@ -158,7 +165,6 @@
 % 特になければ以下はコメントアウト
 \begin{appendices}
   \input{chapters/appendix}
-  \input{chapters/selfcheck}
 \end{appendices}
 
 % ------------------------------------------------------------------------------

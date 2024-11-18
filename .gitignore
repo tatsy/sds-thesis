@@ -3,6 +3,9 @@
 Thumbs.db
 *.swp
 .DS_Store
+/*.tmp
+/*.sav.tmp
+*-SAVE-ERROR
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

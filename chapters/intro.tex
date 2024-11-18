@@ -122,20 +122,9 @@
   \label{fig:remeshing}
 \end{figure}
 
-\begin{figure}[tbp]
-	\centering
-	\begin{tabular}{ccc}
-    \includegraphics[width=.3\linewidth]{gtekt1} &
-    \includegraphics[width=.3\linewidth]{gtekt2} &
-    \includegraphics[width=.3\linewidth]{gtekt3}
-  \end{tabular}
-	\caption[溶接工程における大型部品運搬の様子]{溶接工程における大型部品運搬の様子 (図は株式会社ジーテクトのウェブページ~\cite{GTekt}より引用)}
-	\label{fig:welding}
-\end{figure}
+また、複数の図を\texttt{figure}と\texttt{tabular}を使ってレイアウトすることもできるが、図のレイアウトの自由度が低く、図の間のスペースが広くなる傾向にあるので、個人的にはおすすめはしない。なるべく、一枚の図を作って取り込む方が見た目はきれいになる。
 
-また、複数の図を\cref{fig:welding}のような形で、\texttt{figure}と\texttt{tabular}を使ってレイアウトすることもできるが、図のレイアウトの自由度が低く、図の間のスペースが広くなる傾向にあるので、個人的にはおすすめはしない。なるべく、一枚の図を作って取り込む方が見た目はきれいになる。
-
-図の配置については、通常、図はページの上に揃えて配置することが一般的であるので\texttt{\textbackslash \{figure\}[t]}のような形でtopに揃えることを意味するtを添えることが多い。この他、図が下に揃ってもいい場合には「b」、図を1ページを丸々使って表示したい場合には「p」を指定する。その場に表示したい場合には「h」あるいは「!h」を指定すればよいが、通常あまり好ましくないとされている。
+図の配置については、通常、図はページの上に揃えて配置することが一般的であるので\texttt{\textbackslash \{figure\}[t]}のような形でtopに揃えることを意味する「\texttt{t}」を添えることが多い。この他、図が下に揃ってもいい場合には「b」、図を1ページを丸々使って表示したい場合には「\texttt{p}」を指定する。その場に表示したい場合には「\texttt{h}」あるいは「\texttt{!h}」を指定すればよいが、通常あまり好ましくないとされている。
 
 キャプションを書く際、特に図目次がある学位論文においては、キャプションが長いせいで図目次が見づらくなることがある。この場合は、\texttt{\textbackslash caption[図目次用のキャプション]\{図の下に出るキャプション\}}のように書くことで、図目次専用のキャプションを指定できる。
 
@@ -144,12 +133,12 @@
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=\linewidth]{sinogram_polygonizer}
-  \caption[Sinogram Polygonizer法の概念図]{Sinogram Polygonizer法の概念図 (Yamanaka et al.~\cite{yamanaka2013sinogram}, \copyright 2013 IEEE)。}
-  \label{fig:sinogram-polygonizer}
+  \includegraphics[width=\linewidth]{gcn_inpaint}
+  \caption[自己教師付き学習を用いたメッシュ補完の結果]{自己教師付き学習を用いたメッシュ補完の結果 (Hattori et al.~\cite{hattori2024learning}, \copyright 2024 IEEE)。}
+  \label{fig:gcn-inpaint}
 \end{figure}
 
-図を別の論文から直接貼り付けることは一般的には好ましくなく、学会や論文誌に投稿する論文においては、ほとんどなされることはない。ただし、書籍や学位論文においては、一定のルールの元で引用することは可能と考えられている。厳密には、画像の著作権を有する学会や個人に許可をとった上で、掲載料を払って掲載する。主要な学会ではIEEEなどは学位論文に関しては掲載料が無料だが、ACMはかなり高額な掲載料がかかるので、特に一般に閲覧可能となる博士論文などは正規の手続きが求められる。引用に際しては\cref{fig:sinogram-polygonizer}のように、図のキャプションに論文のコピーライトを掲載する。
+図を別の論文から直接貼り付けることは一般的には好ましくなく、学会や論文誌に投稿する論文においては、ほとんどなされることはない。ただし、書籍や学位論文においては、一定のルールの元で引用することは可能と考えられている。厳密には、画像の著作権を有する学会や個人に許可をとった上で、掲載料を払って掲載する。主要な学会ではIEEEなどは学位論文に関しては掲載料が無料だが、ACMはかなり高額な掲載料がかかるので、特に一般に閲覧可能となる博士論文などは正規の手続きが求められる。引用に際しては\cref{fig:gcn-inpaint}のように、図のキャプションに論文のコピーライトを掲載する。
 
 
 % ------------------------------------------------------------------------------
@@ -237,4 +226,4 @@
 
 文献を個別に引用する場合には\texttt{\textbackslash cite\{hoppe96progressive\}}のように書く~\cite{hoppe96progressive}。なお、通常引用部分と直前の文章の間にはチルダの記号「$\sim$」を使って半角スペースを入れる。二つ以上を一度に引用する場合には\texttt{\textbackslash cite}の中括弧の中にコンマ区切りで並べるだけでよい~\cite{garland97surface,kazhdan06poisson, hoppe96progressive,qi2017pointnetpp}。なお、この文書では\biblatex の設定で、適当な順で\texttt{cite}の中に並べても番号順にソートされるようになっている。
 
-また、著者名が日本語の場合、そのままだと漢字の最初の文字だけが抜き出されてしまうため、\texttt{author=\{\{谷田川 達也 and 大竹 豊 and 鈴木 宏正\}\}}のように\texttt{*.bib}ファイル内の著者名の部分で波括弧を二重にして囲う必要がある。
+また、著者名が日本語の場合、そのままだと漢字の最初の文字だけが抜き出されてしまうため、\texttt{author=\{\{山田 太郎 and 佐藤 花子 and 鈴木 三郎\}\}}のように\texttt{*.bib}ファイル内の著者名の部分で波括弧を二重にして囲う必要がある。

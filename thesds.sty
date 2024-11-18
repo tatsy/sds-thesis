@@ -15,6 +15,12 @@
 \@englishfalse
 \DeclareOptionX{english}{\@englishtrue}
 
+% ロゴの表示
+\newif\if@nologo
+\@nologofalse
+\DeclareOptionX{logo}{\@nologotrue}
+
+% オプションの処理
 \DeclareOptionX*{\PackageWarning{thesds}{`\CurrentOption' is ignored}}
 \ProcessOptionsX\relax
 
@@ -185,14 +191,55 @@
 \def\thesistype#1{\gdef\@thesistype{#1}}
 \def\title#1{\gdef\@title{#1}}
 \def\etitle#1{\gdef\@etitle{#1}}
-\def\studentid#1{\gdef\@studentid{#1}}
 \def\author#1{\gdef\@author{#1}}
-\def\supervisor#1{\gdef\@supervisor{#1}}
+\def\eauthor#1{\gdef\@eauthor{#1}}
 \def\affiliation#1{\gdef\@affiliation{#1}}
+\def\eaffiliation#1{\gdef\@eaffiliation{#1}}
+\def\edate#1{\gdef\@edate{#1}}
 \def\adjustspace#1{\gdef\@adjustspace{#1}}
 
+\newlength{\typetotitlesep}
+\newlength{\titletoauthorsep}
+\newlength{\authortoaffiliationsep}
+\newlength{\affiliationtodatesep}
+\newlength{\beforelogosep}
+
+\if@english
+  \setlength{\typetotitlesep}{22truept}
+  \setlength{\titletoauthorsep}{44truept}
+  \setlength{\authortoaffiliationsep}{11truept}
+  \setlength{\affiliationtodatesep}{22truept}
+\else
+  \setlength{\typetotitlesep}{88truept}
+  \setlength{\titletoauthorsep}{154truept}
+  \setlength{\authortoaffiliationsep}{22truept}
+  \setlength{\affiliationtodatesep}{44truept}
+  \fi
+
+\if@nologo
+  \setlength{\beforelogosep}{0truept}
+\else
+  \setlength{\beforelogosep}{22truept}
+\fi
+
+\newlength{\contentheight}
+\setlength{\contentheight}{132truept}
+\addtolength{\contentheight}{\typetotitlesep}
+\addtolength{\contentheight}{\titletoauthorsep}
+\addtolength{\contentheight}{\authortoaffiliationsep}
+\addtolength{\contentheight}{\affiliationtodatesep}
+\addtolength{\contentheight}{\beforelogosep}
+
+\if@english
+  \setlength{\contentheight}{2.\contentheight}
+\fi
+
+\newlength{\titlepagetopsep}
+\addtolength{\titlepagetopsep}{0.5\textheight}
+\addtolength{\titlepagetopsep}{-0.5\contentheight}
+
 % 表紙に使うレイアウトの定義
-\definecolor{CoverRuleColor}{rgb}{0.8,0.8,0.8}
+\definecolor{CoverRuleColor}{rgb}{0.4, 0.4, 0.4}
 \RequirePackage{fbox}
 \def\coverpagebox{\VerbBox\@coverpagebox}
 \def\@coverpagebox#1{%
@@ -210,27 +257,37 @@
     \fancypage{\coverpagebox}{}
 
     \begin{center}
-      \vspace*{15truemm}
+      % 日本語タイトル
+      \vspace*{\titlepagetopsep}
       {\bfseries\sffamily\large \@thesistype}\\
-      \vspace*{32truemm}
-      {\bfseries\sffamily\huge\@title\\[-\baselineskip]~} \\
-      \vspace*{10truemm}
-      {\rmfamily\LARGE\@etitle\\[-\baselineskip]~} \\
-      \vspace*{\@adjustspace}
-      {\Large \@date} \\
-      \vspace*{17truemm}
-      {\Large \@affiliation}\\
-      \vspace*{2truemm}
-      {\Large \quad\@studentid} \\
-      \vspace*{5truemm}
+      \vspace*{\typetotitlesep}
+      {\bfseries\sffamily\LARGE\@title\\[-\baselineskip]~} \\
+      \vspace*{\titletoauthorsep}
       {\Large	\@author} \\
-      \vspace*{5truemm}
-      {\Large \quad\@supervisor}\\
-      \vspace*{15truemm}
-      \hspace{5truemm}
-      \includegraphics[height=18truemm]{logo.pdf}
-      \hspace{5truemm}
-      \raisebox{1truemm}{\includegraphics[height=16truemm]{sds.pdf}}
+      \vspace*{\authortoaffiliationsep}
+      {\large \@affiliation}\\
+      \vspace*{\affiliationtodatesep}
+      {\large \@date} \\
+      % 英語タイトル
+      \if@english
+        \vspace*{\@adjustspace}
+        {\rmfamily\LARGE\@etitle\\[-\baselineskip]~} \\
+        \vspace*{\titletoauthorsep}
+        {\Large	\@eauthor} \\
+        \vspace*{\authortoaffiliationsep}
+        {\large \@eaffiliation}\\
+        \vspace*{\affiliationtodatesep}
+        {\large \@edate} \\
+      \fi
+      % ロゴの表示
+      \vspace*{\beforelogosep}
+      \if@nologo
+      \else
+        \hspace{5truemm}
+        \includegraphics[height=18truemm]{logo.pdf}
+        \hspace{5truemm}
+        \raisebox{1truemm}{\includegraphics[height=16truemm]{sds.pdf}}
+      \fi
       \vfill
     \end{center}
 
