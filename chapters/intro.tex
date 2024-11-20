@@ -7,7 +7,7 @@
 
 \latex を解説している文章は世の中にたくさんあると思われるが、比較的まとまっているのは「Wikibook」にある「LaTeX」の項目だろう。英語だが、平易に書かれており、\latex のソースコードも多く示されているので、読むのに苦労することは少ないと思われる (一応、日本語版もあるが、やや量が少ない)。\latex の基本的な書き方で分からないことがあれば、まずはここを参照すること。
 \begin{itemize}
-  \item \textsf{Wikibook: LaTeX}~~(\url{https://en.wikibooks.org/wiki/LaTeX})
+  \item Wikibook: LaTeX \\(\url{https://en.wikibooks.org/wiki/LaTeX})
 \end{itemize}
 
 この章では、\cref{sec:write-equation}で式の書き方を、\cref{sec:insert-figure}では図の入れ方を、\cref{sec:insert-table}では表の入れ方を、\cref{sec:write-algorithm}ではアルゴリズムの書き方を、最後の\cref{sec:cite-articles}では文献引用の方法について述べる。
@@ -151,7 +151,7 @@
 加えてテーブルの横幅だが、最近は\cref{tab:num-fruits-tblr}のようにページの幅いっぱいにテーブルを広げているものを多く見る。テーブルを横方向一杯に広げる方法はいくつかあるが、最も簡単なのは\texttt{tabularray}パッケージを使う方法である。\texttt{tabularray}パッケージでは、「\texttt{\textbackslash begin\{tblr\}\{colspec=\{列フォーマット指定\}, width=\textbackslash linewidth\}}」のように書くことでテーブルの幅を指定できる他、列のフォーマット指定時に「\texttt{lcr}」などの代わりに\texttt{X[l]}, \texttt{X[c]}, \texttt{X[r]}のように書くことで、テーブルの幅を保ったまま、各列の文字揃えを指定できる。これ以外にも、\texttt{{X[2,l]X[1,c]X[1,c]}}のように指定することで、各列の幅の比 (この例では2:1:1)などを指定することもできる。ただし、\texttt{tabularray}パッケージは\latex 3でないと使えないので注意。
 
 \begin{itemize}
-  \item \textsf{Package tabularray --- CTAN} \\(\url{https://www.ctan.org/pkg/tabularray})
+  \item Package tabularray --- CTAN \\(\url{https://www.ctan.org/pkg/tabularray})
 \end{itemize}
 
 
@@ -192,7 +192,7 @@
 
 アルゴリズムの書き方については、機能が多岐に渡るので、冒頭でも紹介したWikibookなどを参照すること。実例として挿入ソートのアルゴリズムを\cref{alg:example-algo}に示してある。
 \begin{itemize}
-  \item \textsf{LaTeX/Algorithms --- Wikibook} \\(\url{https://en.wikibooks.org/wiki/LaTeX/Algorithms})
+  \item LaTeX/Algorithms --- Wikibook \\(\url{https://en.wikibooks.org/wiki/LaTeX/Algorithms})
 \end{itemize}
 
 なお、何らかのアルゴリズムを説明する際に、以下のような\texttt{algorithm}環境を用いて擬似コードを記述することは必須ではない。あくまで疑似コードは「本文を補助するためのもの」であり、擬似コードを示しただけでは説明したことにはならない。逆に本文で明快な説明ができているのであれば、あえて擬似コードを掲載する必要はない。
