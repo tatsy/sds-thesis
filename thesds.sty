@@ -74,6 +74,8 @@
   \usepackage[haranoaji]{zxjafont}
   \newlength{\zw}
   \setlength{\zw}{1em}
+  \newlength{\zh}
+  \setlength{\zh}{1.1\zw}
 \fi
 
 % ------------------------------------------------------------------------------
@@ -246,7 +248,7 @@
 \def\@coverpagebox#1{%
   \begingroup
     \setbox\@fancybox\hbox{{#1}}%
-    \fboxrule=3.0\fboxrule
+    \fboxrule=2.0\fboxrule
     \fboxsep=\fboxrule
     \advance\fboxsep 2pt
     \fbox[lcolor=CoverRuleColor,rcolor=CoverRuleColor,tcolor=CoverRuleColor,bcolor=CoverRuleColor]{\box\@fancybox}
@@ -260,15 +262,15 @@
     \begin{center}
       % 日本語タイトル
       \vspace*{\titlepagetopsep}
-      {\bfseries\sffamily\large \@thesistype}\\
+      {\bfseries\sffamily\Large \@thesistype}\\
       \vspace*{\typetotitlesep}
       {\bfseries\sffamily\LARGE\@title\\[-\baselineskip]~} \\
       \vspace*{\titletoauthorsep}
       {\Large	\@author} \\
       \vspace*{\authortoaffiliationsep}
-      {\large \@affiliation}\\
+      {\Large \@affiliation}\\
       \vspace*{\affiliationtodatesep}
-      {\large \@date} \\
+      {\Large \@date} \\
       % 英語タイトル
       \if@english
         \vspace*{\@adjustspace}
@@ -276,9 +278,9 @@
         \vspace*{\titletoauthorsep}
         {\Large	\@eauthor} \\
         \vspace*{\authortoaffiliationsep}
-        {\large \@eaffiliation}\\
+        {\Large \@eaffiliation}\\
         \vspace*{\affiliationtodatesep}
-        {\large \@edate} \\
+        {\Large \@edate} \\
       \fi
       % ロゴの表示
       \vspace*{\beforelogosep}
