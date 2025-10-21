@@ -1,7 +1,7 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
-\usepackage[nologo]{thesds}
-% \usepackage[nologo]{thesds} % ロゴを非表示
-% \usepackage[english]{thesds} % for English
+\usepackage[nologo]{sdsthesis}
+% \usepackage[nologo]{sdsthesis} % ロゴを非表示
+% \usepackage[english]{sdsthesis} % for English
 
 % 図が多くビルドに時間がかかるときは
 % \documentclass[12pt,a4paper,twoside,openany,draft]{book}
@@ -39,44 +39,43 @@
 \DeclareMathOperator*{\argmax}{argmax}
 \DeclareMathOperator*{\argmin}{argmin}
 
-
 % ***** BibTeXの設定 *****
 \usepackage[
-  backend=biber,
-  backref=true,
-  sortcites=true,
-  style=ieee,
-  citestyle=numeric,
-  maxbibnames=999,
-  mincitenames=999,
-  maxcitenames=999,
-  sorting=none,
-  url=false,
-  doi=true,
-  isbn=true
+ backend=biber,
+ backref=true,
+ sortcites=true,
+ style=ieee,
+ citestyle=numeric,
+ maxbibnames=999,
+ mincitenames=999,
+ maxcitenames=999,
+ sorting=none,
+ url=false,
+ doi=true,
+ isbn=true
 ]{biblatex}
 
 % backrefの表記を編集
 \DefineBibliographyStrings{english}{%
-  backrefpage = {cited on page},    % originally "cited on page"
-  backrefpages = {cited on pages},  % originally "cited on pages"
+ backrefpage = {cited on page}, % originally "cited on page"
+ backrefpages = {cited on pages}, % originally "cited on pages"
 }
 
 % 余計な項目を非表示にしておく (必要な場合はコメントアウトする)
 \AtEveryBibitem{
-  \clearfield{eprint}%
-  \clearfield{date}%
-  \clearfield{month}%
-  \clearfield{issn}%
-  \clearfield{series}%
-  \clearlist{address}%
+ \clearfield{eprint}%
+ \clearfield{date}%
+ \clearfield{month}%
+ \clearfield{issn}%
+ \clearfield{series}%
+ \clearlist{address}%
 
-  % "book"以外から削除する項目
-  \ifentrytype{book}{}{
-    \clearfield{isbn}%
-    \clearname{editor}%
-    \clearlist{publisher}%
-  }
+ % "book"以外から削除する項目
+ \ifentrytype{book}{}{
+ \clearfield{isbn}%
+ \clearname{editor}%
+ \clearlist{publisher}%
+ }
 }
 
 % BibTeXのソースを指定
@@ -88,14 +87,14 @@
 % ***** タイトルページ *****
 \thesistype{令和6年度~修士論文}
 \title{卒業・修了論文の書き方}
-\author{山田 太郎}  % 自分の名前
+\author{山田 太郎} % 自分の名前
 \affiliation{一橋大学大学院\\[.5\zh]ソーシャル・データサイエンス研究科 修士課程}
-\date{2025年3月 提出}
+\date{2026年3月 提出}
 % 英語の情報 (日本語の場合には不要)
 \etitle{How to Write a Graduation Thesis}
-\eauthor{Taro Yamada}  % 自分の名前 (英語)
+\eauthor{Taro Yamada} % 自分の名前 (英語)
 \eaffiliation{Graduate of Social Data Science\\Hitotsubashi University}
-\edate{March, 2025}
+\edate{March, 2026}
 % 日本語タイトルと英語タイトルの間のスペース
 \adjustspace{100truept}
 
@@ -110,19 +109,19 @@
 
 % ***** 論文全体の概要 *****
 \begin{abstract}
-  論文全体の概要を書く。概要は、論文全体の内容がイメージできるものである必要があるので、提案法についてだけでなく、研究背景や、提案法に至る着想、提案法の中身、実験結果、展望も含め全体について簡潔に書くことを心がける。その際、多くのことを主張することは避けて、論文の最も重要な部分、例えば、研究上の新規性であったり、提案法により得られた有効な結果について重点的に述べる。時折、やたら研究背景が長く書いてある概要を見かけるが、最低でも自分が研究したことが半分以上は概要に入るようにする。 \\
-  
-  Write the abstract here. As the abstract should provide an overview of the whole thesis, you should include brief descriptions of the entire contents, i.e., background, inspiration, proposed method, experimental results, and future spectacular. Then, you should avoid claiming too many things. You should focus on important perspectives of the thesis, for instance, the research novelty and main findings offered by the proposed method. Some students write too much research background in the abstract, but it is not preferable. You should write what you did in at least one-half of the abstract.
+ 論文全体の概要を書く。概要は、論文全体の内容がイメージできるものである必要があるので、提案法についてだけでなく、研究背景や、提案法に至る着想、提案法の中身、実験結果、展望も含め全体について簡潔に書くことを心がける。その際、多くのことを主張することは避けて、論文の最も重要な部分、例えば、研究上の新規性であったり、提案法により得られた有効な結果について重点的に述べる。時折、やたら研究背景が長く書いてある概要を見かけるが、最低でも自分が研究したことが半分以上は概要に入るようにする。 \\
+ 
+ Write the abstract here. As the abstract should provide an overview of the whole thesis, you should include brief descriptions of the entire contents, i.e., background, inspiration, proposed method, experimental results, and future spectacular. Then, you should avoid claiming too many things. You should focus on important perspectives of the thesis, for instance, the research novelty and main findings offered by the proposed method. Some students write too much research background in the abstract, but it is not preferable. You should write what you did in at least one-half of the abstract.
 \end{abstract}
 
 % ***** 目次たち *****
-\tableofcontents  % 目次
+\tableofcontents % 目次
 \clearpage
 
-\listoffigures    % 図目次
+\listoffigures % 図目次
 \clearpage
 
-\listoftables     % 表目次
+\listoftables % 表目次
 \clearpage
 
 % ------------------------------------------------------------------------------
@@ -144,7 +143,7 @@
 % 謝辞
 % ------------------------------------------------------------------------------
 \begin{acks}
-\input{chapters/acknowledge}
+  \input{chapters/acknowledge}
 \end{acks}
 
 % ------------------------------------------------------------------------------

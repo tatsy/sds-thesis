@@ -1,0 +1,75 @@
+onlyOneBackup: 1
+defaultIndent: "  "
+removeTrailingWhiteSpace: 1
+
+verbatimEnvironments:
+  abstract: 1
+  CCSXML: 1
+
+modifyLineBreaks:
+  textWrapOptions:
+    columns: -1
+    condenseMultipleBlankLinesInto:
+      before: 1
+    multipleSpacesToSingle:
+      before: 1
+    removeBlockLineBreaks:
+      before: 1
+    removeSentenceLineBreaks:
+      before: 1
+    removeTrailingWhiteSpace:
+      before: 1
+    blocksFollow:
+      other: |-
+        (?x)
+          \\For
+          |
+          \\While
+          |
+          \\Return
+          |
+          \\If
+          |
+          \\Else
+          |
+          \\tcp
+          |
+          \\tcc
+    blocksEnd:
+      other: |-
+        (?x)
+          \\
+
+lookForAlignDelims:
+  tabular:
+    delims: 0
+  tabularx:
+    delims: 0
+  cases:
+    delims: 0
+  align:
+    delims: 0
+  gather:
+    delims: 0
+  aligned:
+    delims: 0
+  gathered:
+    delims: 0
+  tblr:
+    delims: 1
+    dontMeasure: maximum
+    alignDoubleBackSlash: 1
+    spacesBeforeDoubleBackSlash: 4
+    multiColumnGrouping: 1
+    alignRowsWithoutMaxDelims: 1
+    spacesBeforeAmpersand: 1
+    spacesAfterAmpersand: 1
+    justification: left
+    alignFinalDoubleBackSlash: 1
+    delimiterRegEx: '(?<!\\)(&)'
+    delimiterJustification: left
+    lookForChildCodeBlocks: 1
+
+replacements:
+  - substitution: s/\h+/ /sg
+    when: before
