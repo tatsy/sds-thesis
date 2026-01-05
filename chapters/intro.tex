@@ -2,7 +2,7 @@
 \label{chap:latex-basic}
 
 \begin{chapabst}
-  章の概要を別にして書きたい場合には「\texttt{chapabst}」コマンド (pethesis.styで定義) を使う。\texttt{chapabst}コマンドを使わない場合、章の概要は表示されない。
+  章の概要を別にして書きたい場合には「\texttt{chapabst}」コマンド (\texttt{sdsthesis.sty}で定義) を使う。\texttt{chapabst}コマンドを使わない場合、章の概要は表示されない。
 \end{chapabst}
 
 \latex を解説している文章は世の中にたくさんあると思われるが、比較的まとまっているのは「Wikibook」にある「LaTeX」の項目だろう。英語だが、平易に書かれており、\latex のソースコードも多く示されているので、読むのに苦労することは少ないと思われる (一応、日本語版もあるが、やや量が少ない)。\latex の基本的な書き方で分からないことがあれば、まずはここを参照すること。
@@ -55,17 +55,17 @@
 %
 上記の二つの式で\cref{eq:with-align}が\texttt{align}を使ったもの、\cref{eq:with-gather}が\texttt{gather}を使ったものである。
 
-なお、ベクトルや行列の表記についてだが、計算機科学の分野では「Numerical Recipes in C」~\cite{numrecipes}という本の書き方に倣い、ベクトルを$\mathbf{x}$のようなアルファベット小文字のボールド体、行列を$\mathbf{A}$のようなアルファベット大文字のボールド体で書く。応用数学の分野などでは斜体かつボールドでない文字を使う文化もあるが、${\boldsymbol x}$のようなイタリック・ボールド体はあまり使わないので注意。
+なお、ベクトルや行列の表記についてだが、計算機科学の分野では「Numerical Recipes in C」~\cite{numrecipes}という本の書き方に倣い、ベクトルを$\mathbf{x}$のようなアルファベット小文字のボールド体、行列を$\mathbf{A}$のようなアルファベット大文字のボールド体で書く。応用数学の分野などでは斜体かつボールドでない文字を使う文化もあるが、${\mathbf{\mathit{x}}}$のようなイタリック・ボールド体はあまり使わないので注意。
 
 \subsection{数式の例いろいろ}
 
 \begin{titlebox}{積分}
   \adjustdisplayskips{1mm}
   \begin{equation}
-    I = \int_0^{\infty} x^2 \mathrm{d}x
+    I = \int_0^{\infty} x^2 \d x
   \end{equation}
   \begin{center}
-    ※ $dx$は正式には$\mathrm{d}x$のように$d$を斜体にせずに書く
+    ※ $dx$は正式には$\d x$ (\texttt{\\d}を使うには\texttt{fixdif}パッケージが必要)のように$d$を斜体にせずに書く
   \end{center}
 \end{titlebox}
 
@@ -104,7 +104,7 @@
 
 一昔前は日本語を\latex で使うために「pLaTeX」＋「dvipdfmx」を使う必要があり、一度中間のDVIファイルを作る都合から画像ファイルをEPS形式で要する必要があった。 一方、現在は\pdflatex のほか\lualatex や\xelatex など、DVIを介せずに直接PDFを出力できる\tex を使用するため、画像はPDFファイルとして用意するのが一般的である。JPEGファイルを直接取り込むことも可能であるが、できる限りPDFで用意することを推奨する。
 
-画像の取り込みには\texttt{figure}環境と\texttt{includegraphics}命令を以下のように組み合わせる。結果は\cref{fig:remeshing}のようになる。なお、本テンプレートは画像のPDFファイルを\texttt{figs}フォルダに配置しているが\texttt{pethesis.tex}のプリアンブルに\texttt{graphicspath}を指定しているため、このフォルダの中に画像ファイルが入っている場合には、フォルダを別段指定する必要はない。
+画像の取り込みには\texttt{figure}環境と\texttt{includegraphics}命令を以下のように組み合わせる。結果は\cref{fig:remeshing}のようになる。なお、本テンプレートは画像のPDFファイルを\texttt{figs}フォルダに配置しているが\texttt{sdsthesis.tex}のプリアンブルに\texttt{graphicspath}を指定しているため、このフォルダの中に画像ファイルが入っている場合には、フォルダを別段指定する必要はない。
 
 \begin{lstlisting}[language=tex,caption={図の貼り方}]
  \begin{figure}[tb]

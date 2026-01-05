@@ -6,31 +6,40 @@
 % スタイルファイルオプションの設定
 % ------------------------------------------------------------------------------
 \RequirePackage{iftex}
-\RequirePackage{xkeyval}
 \RequirePackage{ifthen}
 \RequirePackage{xparse}
+\RequirePackage{letltxmacro}
+\RequirePackage{expl3}
+\RequirePackage{l3keys2e}
 
-% 言語設定のオプション
-\newif\if@english
-\@englishfalse
-\DeclareOptionX{english}{\@englishtrue}
+\ExplSyntaxOn
+  % 言語設定のオプション
+  \bool_new:N \l_thesis_english_bool
+  \bool_gset_false:N \l_thesis_english_bool
 
-% ロゴの表示
-\newif\if@nologo
-\@nologofalse
-\DeclareOptionX{nologo}{\@nologotrue}
+  % ロゴの表示のオプション
+  \bool_new:N \l_thesis_nologo_bool
+  \bool_gset_false:N \l_thesis_nologo_bool
 
-% オプションの処理
-\DeclareOptionX*{\PackageWarning{thesds}{`\CurrentOption' is ignored}}
-\ProcessOptionsX\relax
+  % オプションの処理
+  \keys_define:nn {sdsthesis}{
+    english .bool_set:N = \l_thesis_english_bool,
+    nologo .bool_set:N = \l_thesis_nologo_bool,
+    unknown .code:n = {
+      \PackageWarning{sdsthesis}{Unknown option `\CurrentOption' ignored}
+    },
+  }
+  \ProcessKeysOptions{sdsthesis}
 
-\ifluatex
-\else
-  \ifxetex
-  \else
-    \PackageError{thesds}{Only XeTeX and LuaTeX are supported}
-  \fi
-\fi
+  % LuaTeXかXeTeXのみをサポート
+  \sys_if_engine_luatex:F
+  {
+    \sys_if_engine_xetex:F
+    {
+      \PackageError{sdsthesis}{Only XeTeX and LuaTeX are supported}
+    }
+  }
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 必要なパッケージ
@@ -40,7 +49,7 @@
 \RequirePackage{amssymb}
 \RequirePackage{amsthm}
 \RequirePackage{color}
-\RequirePackage[svgnames,dvipsnames]{xcolor}
+\RequirePackage[svgnames,dvipsnames,x11names]{xcolor}
 \RequirePackage[pagestyles]{titlesec}
 \RequirePackage{fancyhdr}
 \RequirePackage{fancybox}
@@ -71,7 +80,7 @@
 \ifxetex
   \RequirePackage{fontspec}
   \RequirePackage{zxjatype}
-  \usepackage[haranoaji]{zxjafont}
+  \RequirePackage[haranoaji]{zxjafont}
   \newlength{\zw}
   \setlength{\zw}{1em}
   \newlength{\zh}
@@ -125,12 +134,27 @@
 % 1inch = 25.4 mm
 % A4 210mm×297mm
 \RequirePackage{geometry}
-\geometry{
-  textwidth=160mm,
-  textheight=224mm,
-  left=24mm,
-  headheight=5mm,
-}
+\ExplSyntaxOn
+  % ページの幅と高さ
+  \dim_new:N \l_page_width_dim
+  \dim_set:Nn \l_page_width_dim {210mm}
+  \dim_new:N \l_page_height_dim
+  \dim_set:Nn \l_page_height_dim {297mm}
+  \dim_new:N \l_text_width_dim
+  \dim_set:Nn \l_text_width_dim {160mm}
+  \dim_new:N \l_text_height_dim
+  \dim_set:Nn \l_text_height_dim {224mm}
+  \dim_new:N \l_left_margin_dim
+  \dim_set:Nn \l_left_margin_dim {24mm}
+  \dim_new:N \l_head_height_dim
+  \dim_set:Nn \l_head_height_dim {5mm}
+  \geometry{
+    textwidth={\dim_use:N \l_text_width_dim},
+    textheight={\dim_use:N \l_text_height_dim},
+    left={\dim_use:N \l_left_margin_dim},
+    headheight={\dim_use:N \l_head_height_dim},
+  }
+\ExplSyntaxOff
 
 % ページのコンテンツを上に詰める
 \raggedbottom
@@ -138,53 +162,65 @@
 % ------------------------------------------------------------------------------
 % 各種サイズ
 % ------------------------------------------------------------------------------
-\if@english\else
+\ExplSyntaxOn
+\bool_if:nTF {\l_thesis_english_bool}{
+}{
   \RequirePackage{indentfirst}
   \setlength{\parindent}{1\zw}
   \renewcommand{\baselinestretch}{1.2}
-\fi
+}
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 章，節などの設定
 % ------------------------------------------------------------------------------
-\if@english
-  \titleformat{\chapter}[display]{\LARGE\sffamily\bfseries}{Chapter \thechapter}{0pt}{}
-\else
+\ExplSyntaxOn
+\bool_if:NTF {\l_thesis_english_bool}{
+  \titleformat{\chapter}[display]{\LARGE\sffamily\bfseries}{Chapter~\thechapter}{0pt}{}
+}{
   \titleformat{\chapter}[display]{\LARGE\sffamily\bfseries}{第\,\thechapter\,章}{0pt}{}
-\fi
+}
+\ExplSyntaxOff
 
 \titleformat{\section}{\Large\sffamily\bfseries}{\thesection}{12pt}{}
 \titleformat{\subsection}{\large\sffamily\bfseries}{\thesubsection}{12pt}{}
 
-\renewcommand{\thesection}{\arabic{chapter}.\,\arabic{section}}
-\renewcommand{\thesubsection}{\arabic{chapter}.\,\arabic{section}.\,\arabic{subsection}}
-\renewcommand{\theequation}{\arabic{chapter}.\,\arabic{equation}}
-\renewcommand{\thefigure}{\arabic{chapter}.\,\arabic{figure}}
-\renewcommand{\thetable}{\arabic{chapter}.\,\arabic{table}}
+\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+\renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
+\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
 
 % ------------------------------------------------------------------------------
 % 日本語表記
 % ------------------------------------------------------------------------------
-\if@english
-  \newcommand{\@abstractname}{Abstract}
-  \newcommand{\@chapabstname}{Chapter summary}
-  \newcommand{\@ackname}{Acknowledgment}
-  \newcommand{\@appendixname}{Appendix}
-  \newcommand{\biblioname}{References}
-\else
-  \newcommand{\@abstractname}{概要}
-  \newcommand{\@chapabstname}{本章の概要}
-  \newcommand{\@ackname}{謝辞}
-  \newcommand{\@appendixname}{付録}
-  \newcommand{\biblioname}{参考文献}
+\ExplSyntaxOn
+\tl_new:N \l_abstract_name_tl
+\tl_new:N \l_chapabst_name_tl
+\tl_new:N \l_ack_name_tl
+\tl_new:N \l_appendix_name_tl
 
-  \renewcommand{\figurename}{図}
-  \renewcommand{\tablename}{表}
-  \renewcommand{\contentsname}{目次}
-  \renewcommand{\listfigurename}{図目次}
-  \renewcommand{\listtablename}{表目次}
-  \renewcommand{\appendixtocname}{付録}
-\fi
+\bool_if:nTF {\l_thesis_english_bool}{
+  \tl_set:Nn \l_abstract_name_tl {Abstract}
+  \tl_set:Nn \l_chapabst_name_tl {Chapter summary}
+  \tl_set:Nn \l_ack_name_tl {Acknowledgment}
+  \tl_set:Nn \l_appendix_name_tl {Appendix}
+  \NewDocumentCommand{\biblioname}{}{References}
+}{
+  \tl_set:Nn \l_abstract_name_tl {概要}
+  \tl_set:Nn \l_chapabst_name_tl {本章の概要}
+  \tl_set:Nn \l_ack_name_tl {謝辞}
+  \tl_set:Nn \l_appendix_name_tl {付録}
+  \NewDocumentCommand{\biblioname}{}{参考文献}
+
+  \RenewDocumentCommand{\figurename}{}{図}
+  \RenewDocumentCommand{\tablename}{}{表}
+  \RenewDocumentCommand{\contentsname}{}{目次}
+  \RenewDocumentCommand{\listfigurename}{}{図目次}
+  \RenewDocumentCommand{\listtablename}{}{表目次}
+  \RenewDocumentCommand{\appendixtocname}{}{付録}
+}
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 表紙の設定
@@ -199,47 +235,76 @@
 \def\affiliation#1{\gdef\@affiliation{#1}}
 \def\eaffiliation#1{\gdef\@eaffiliation{#1}}
 \def\edate#1{\gdef\@edate{#1}}
-\def\adjustspace#1{\gdef\@adjustspace{#1}}
 
-\newlength{\typetotitlesep}
-\newlength{\titletoauthorsep}
-\newlength{\authortoaffiliationsep}
-\newlength{\affiliationtodatesep}
-\newlength{\beforelogosep}
+\newlength{\@adjustspace}
+\def\adjustspace#1{\setlength\@adjustspace{#1}}
 
-\if@english
-  \setlength{\typetotitlesep}{22truept}
-  \setlength{\titletoauthorsep}{44truept}
-  \setlength{\authortoaffiliationsep}{11truept}
-  \setlength{\affiliationtodatesep}{22truept}
-\else
-  \setlength{\typetotitlesep}{88truept}
-  \setlength{\titletoauthorsep}{154truept}
-  \setlength{\authortoaffiliationsep}{22truept}
-  \setlength{\affiliationtodatesep}{44truept}
-  \fi
+\ExplSyntaxOn
+  \tl_new:N \g_thesis_type_tl
+  \tl_new:N \g_thesis_title_tl
+  \tl_new:N \g_thesis_author_tl
+  \tl_new:N \g_thesis_etitle_tl
+  \tl_new:N \g_thesis_eauthor_tl
+  \tl_new:N \g_thesis_affiliation_tl
+  \tl_new:N \g_thesis_eaffiliation_tl
+  \tl_new:N \g_thesis_edate_tl
+  \dim_new:N \g_thesis_adjustspace_dim
 
-\if@nologo
-  \setlength{\beforelogosep}{0truept}
-\else
-  \setlength{\beforelogosep}{22truept}
-\fi
+  \tl_gset:Nn \g_thesis_type_tl {\@thesistype}
+  \tl_gset:Nn \g_thesis_title_tl {\@title}
+  \tl_gset:Nn \g_thesis_author_tl {\@author}
+  \tl_gset:Nn \g_thesis_etitle_tl {\@etitle}
+  \tl_gset:Nn \g_thesis_eauthor_tl {\@eauthor}
+  \tl_gset:Nn \g_thesis_affiliation_tl {\@affiliation}
+  \tl_gset:Nn \g_thesis_eaffiliation_tl {\@eaffiliation}
+  \tl_gset:Nn \g_thesis_edate_tl {\@edate}
+  \dim_gset:Nn \g_thesis_adjustspace_dim {\@adjustspace}
+\ExplSyntaxOff
 
-\newlength{\contentheight}
-\setlength{\contentheight}{132truept}
-\addtolength{\contentheight}{\typetotitlesep}
-\addtolength{\contentheight}{\titletoauthorsep}
-\addtolength{\contentheight}{\authortoaffiliationsep}
-\addtolength{\contentheight}{\affiliationtodatesep}
-\addtolength{\contentheight}{\beforelogosep}
+\ExplSyntaxOn
+  \dim_new:N \l_type_to_title_sep_dim
+  \dim_new:N \l_title_to_author_sep_dim
+  \dim_new:N \l_author_to_affiliation_sep_dim
+  \dim_new:N \l_affiliation_to_date_sep_dim
+  \dim_new:N \l_before_logo_sep_dim
 
-\if@english
-  \setlength{\contentheight}{2.\contentheight}
-\fi
+  \bool_if:nTF {\l_thesis_english_bool}{
+    \dim_set:Nn \l_type_to_title_sep_dim {22pt}
+    \dim_set:Nn \l_title_to_author_sep_dim {44pt}
+    \dim_set:Nn \l_author_to_affiliation_sep_dim {11pt}
+    \dim_set:Nn \l_affiliation_to_date_sep_dim {22pt}
+  }{
+    \dim_set:Nn \l_type_to_title_sep_dim {88pt}
+    \dim_set:Nn \l_title_to_author_sep_dim {154pt}
+    \dim_set:Nn \l_author_to_affiliation_sep_dim {22pt}
+    \dim_set:Nn \l_affiliation_to_date_sep_dim {44pt}
+  }
 
-\newlength{\titlepagetopsep}
-\addtolength{\titlepagetopsep}{0.5\textheight}
-\addtolength{\titlepagetopsep}{-0.5\contentheight}
+  \bool_if:nTF {\l_thesis_nologo_bool}{
+    \dim_set:Nn \l_before_logo_sep_dim {0pt}
+  }{
+    \dim_set:Nn \l_before_logo_sep_dim {22pt}
+  }
+
+  \dim_new:N \l_content_height_dim
+  \dim_set:Nn \l_content_height_dim {
+    132pt
+    + \l_type_to_title_sep_dim
+    + \l_title_to_author_sep_dim
+    + \l_author_to_affiliation_sep_dim
+    + \l_affiliation_to_date_sep_dim
+    + \l_before_logo_sep_dim
+  }
+
+  \bool_if:nTF {\l_thesis_english_bool}{
+    \dim_set:Nn \l_content_height_dim {2 \l_content_height_dim}
+  }{
+    \dim_set:Nn \l_content_height_dim {\l_content_height_dim}
+  }
+
+  \dim_new:N \l_title_page_top_sep_dim
+  \dim_set:Nn \l_title_page_top_sep_dim { (\l_text_height_dim - \l_content_height_dim) / 2 }
+\ExplSyntaxOff
 
 % 表紙に使うレイアウトの定義
 \definecolor{CoverRuleColor}{rgb}{0.4, 0.4, 0.4}
@@ -252,48 +317,54 @@
     \fboxsep=\fboxrule
     \advance\fboxsep 2pt
     \fbox[lcolor=CoverRuleColor,rcolor=CoverRuleColor,tcolor=CoverRuleColor,bcolor=CoverRuleColor]{\box\@fancybox}
-  \endgroup}
+  \endgroup
+}
 
 % 表紙コマンドの定義
-\renewcommand\maketitle{
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_make_title: {
+  % 日本語タイトル
+  \vspace*{\dim_use:N \l_title_page_top_sep_dim}
+  {\bfseries\sffamily\Large {\tl_use:N \g_thesis_type_tl}}\\
+  \vspace*{\dim_use:N \l_type_to_title_sep_dim}
+  {\bfseries\sffamily\LARGE {\tl_use:N \g_thesis_title_tl}}\\
+  \vspace*{\dim_use:N \l_title_to_author_sep_dim}
+  {\Large	{\tl_use:N \g_thesis_author_tl}} \\
+  \vspace*{\dim_use:N \l_author_to_affiliation_sep_dim}
+  {\Large {\tl_use:N \g_thesis_affiliation_tl}}\\
+  \vspace*{\dim_use:N \l_affiliation_to_date_sep_dim}
+  {\Large {\tl_use:N \g_thesis_edate_tl}} \\
+  % 英語タイトル
+  \bool_if:NTF {\l_thesis_english_bool}{
+    \vspace*{\dim_use:N \g_thesis_adjustspace_dim}
+    {\bfseries\sffamily\Large {\tl_use:N \g_thesis_type_tl}}\\
+    {\rmfamily\LARGE {\tl_use:N \g_thesis_etitle_tl}}\\
+    \vspace*{\dim_use:N \l_title_to_author_sep_dim}
+    {\Large	{\tl_use:N \g_thesis_eauthor_tl}} \\
+    \vspace*{\dim_use:N \l_author_to_affiliation_sep_dim}
+    {\Large {\tl_use:N \g_thesis_eaffiliation_tl}}\\
+    \vspace*{\dim_use:N \l_affiliation_to_date_sep_dim}
+    {\Large {\tl_use:N \g_thesis_edate_tl}} \\
+  }{}
+  % ロゴの表示
+  \vspace*{\dim_use:N \l_before_logo_sep_dim}
+  \bool_if:NTF {\l_thesis_nologo_bool}{
+  }{
+    \hspace{5truemm}
+    \includegraphics[height=18truemm]{logo.pdf}
+    \hspace{5truemm}
+    \raisebox{1truemm}{\includegraphics[height=16truemm]{sds.pdf}}
+  }
+}
+\ExplSyntaxOff
+
+\renewcommand{\maketitle}{
 	\thispagestyle{empty}
-    \fancypage{\coverpagebox}{}
-
-    \begin{center}
-      % 日本語タイトル
-      \vspace*{\titlepagetopsep}
-      {\bfseries\sffamily\Large \@thesistype}\\
-      \vspace*{\typetotitlesep}
-      {\bfseries\sffamily\LARGE\@title\\[-\baselineskip]~} \\
-      \vspace*{\titletoauthorsep}
-      {\Large	\@author} \\
-      \vspace*{\authortoaffiliationsep}
-      {\Large \@affiliation}\\
-      \vspace*{\affiliationtodatesep}
-      {\Large \@date} \\
-      % 英語タイトル
-      \if@english
-        \vspace*{\@adjustspace}
-        {\rmfamily\LARGE\@etitle\\[-\baselineskip]~} \\
-        \vspace*{\titletoauthorsep}
-        {\Large	\@eauthor} \\
-        \vspace*{\authortoaffiliationsep}
-        {\Large \@eaffiliation}\\
-        \vspace*{\affiliationtodatesep}
-        {\Large \@edate} \\
-      \fi
-      % ロゴの表示
-      \vspace*{\beforelogosep}
-      \if@nologo
-      \else
-        \hspace{5truemm}
-        \includegraphics[height=18truemm]{logo.pdf}
-        \hspace{5truemm}
-        \raisebox{1truemm}{\includegraphics[height=16truemm]{sds.pdf}}
-      \fi
-      \vfill
-    \end{center}
-
+  \fancypage{\coverpagebox}{}
+  \begin{center}
+  {\expandafter\csname thesis_make_title:\endcsname}
+  \vfill
+  \end{center}
 	\newpage
 	\fancypage{}{}
 	\cleardoublepage
@@ -305,16 +376,16 @@
 
 % 番号とタイトルの間のスペースを調整
 \RequirePackage{tocloft}
-\setlength{\cftfignumwidth}{3em}
-\setlength{\cfttabnumwidth}{3em}
+\setlength\cftfignumwidth{3em}
+\setlength\cfttabnumwidth{3em}
 
 % 目次のフォントを設定
-\renewcommand{\cfttoctitlefont}{\LARGE\bfseries\sffamily}
-\renewcommand{\cftloftitlefont}{\LARGE\bfseries\sffamily}
-\renewcommand{\cftlottitlefont}{\LARGE\bfseries\sffamily}
-\renewcommand{\cftchapfont}{\large\sffamily\bfseries}
-\renewcommand{\cftsecfont}{\normalsize}
-\renewcommand{\cftsubsecfont}{\normalsize}
+\RenewDocumentCommand{\cfttoctitlefont}{}{\LARGE\bfseries\sffamily}
+\RenewDocumentCommand{\cftloftitlefont}{}{\LARGE\bfseries\sffamily}
+\RenewDocumentCommand{\cftlottitlefont}{}{\LARGE\bfseries\sffamily}
+\RenewDocumentCommand{\cftchapfont}{}{\large\sffamily\bfseries}
+\RenewDocumentCommand{\cftsecfont}{}{\normalsize}
+\RenewDocumentCommand{\cftsubsecfont}{}{\normalsize}
 
 % 章の項目もドットでページ番号までを繋ぐ
 %\renewcommand{\cftchapleader}{\cftdotfill{\cftchapdotsep}}
@@ -324,21 +395,30 @@
 % ------------------------------------------------------------------------------
 % 論文全体の概要
 % ------------------------------------------------------------------------------
-\newenvironment{abstract}{%
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_setup_abstract_title: {
+  {\bfseries\sffamily\large {\tl_use:N \l_abstract_name_tl}}
+}
+\ExplSyntaxOff
+
+\NewDocumentEnvironment{abstract}{}{%
   \thispagestyle{empty}
   \vspace*{40truemm}
   \begin{center}
-    {\bfseries\sffamily {\large\@abstractname}}
+  {\expandafter\csname thesis_setup_abstract_title:\endcsname}
   \end{center}
   \edef\currentindent{\the\parindent}
-  \begin{minipage}{\textwidth}\setlength{\parindent}{\currentindent}}
-  {\end{minipage}\clearpage}
+  \begin{minipage}{\textwidth}\setlength{\parindent}{\currentindent}
+}{%
+  \end{minipage}
+  \clearpage
+}
 
 % ------------------------------------------------------------------------------
 % 各章の概要
 % ------------------------------------------------------------------------------
-\def\textitjp#1{
-  \makebox[2.25zw][l]{
+\NewDocumentCommand{\textitjp}{m}{%
+  \makebox[2.25zw][l]{%
     \vphantom{#1}\rotatebox{-48.8}{
       \scalebox{0.875}[1.143]{
         \rotatebox{41.2}{
@@ -349,12 +429,16 @@
   }
 }
 
-\newlength\chapabstbelowskip
-\setlength{\chapabstbelowskip}{5mm}
-\newenvironment{chapabst}
-  {\setlength{\rightskip}{1in}\begin{small}\noindent\textbf{\textsf{\@chapabstname :}}~}
-  {\end{small}\vspace{\chapabstbelowskip}}
-
+\ExplSyntaxOn
+  \dim_new:N \l_chapabst_below_skip_dim
+  \dim_set:Nn \l_chapabst_below_skip_dim {5mm}
+  \NewDocumentEnvironment{chapabst}{}{%
+    \setlength\rightskip{1in}%
+    \begin{small}\noindent\textbf{\textsf{\tl_use:N \l_chapabst_name_tl :}}~
+  }{%
+    \end{small}\vspace{\dim_use:N \l_chapabst_below_skip_dim}
+  }
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % ページヘッダの制御
@@ -372,11 +456,16 @@
 \fancyfoot[C]{--\,\thepage\,--}
 
 %ヘッダ記述。 ~ で章・節番号とそのタイトルの間のスペースを調整
-\if@english
-\else
-  \renewcommand{\chaptermark}[1]{\markboth{第 \thechapter 章~~~#1}{}}
-  \renewcommand{\sectionmark}[1]{\markright{\thesection ~~~#1}{}}
-\fi
+\ExplSyntaxOn
+\bool_if:nTF {\l_thesis_english_bool}{
+}{
+  \RenewDocumentCommand{\chaptermark}{m}{\markboth{第\,\thechapter\,章\quad #1}{}}
+  \RenewDocumentCommand{\sectionmark}{m}{\markright{\thesection\quad #1}{}}
+  \AtBeginEnvironment{appendices}{%
+    \RenewDocumentCommand{\chaptermark}{m}{\markboth{付録\,\thechapter\quad #1}{}}
+  }
+}
+\ExplSyntaxOff
 
 % plainスタイルを再定義してheaderが章の最初の出ないようにする
 % https://tex.stackexchange.com/questions/117328/fancyhdr-does-not-apply-same-header-footer-on-chapter-and-non-chapter-pages
@@ -386,11 +475,11 @@
 }
 
 % ------------------------------------------------------------------------------
-% 参考文献が目次に乗るようにする。
+% 参考文献が目次に載るようにする。
 % http://www.nsknet.or.jp/~tony/TeX/faq/macro.htm
 % ------------------------------------------------------------------------------
-\renewenvironment{thebibliography}[1]% 再定義
-{\chapter*{\biblioname\@mkboth{\biblioname}{\biblioname}}%
+\RenewDocumentEnvironment{thebibliography}{m}{% 再定義
+  \chapter*{\biblioname\@mkboth{\biblioname}{\biblioname}}%
   \addcontentsline{toc}{chapter}{\biblioname}% この行追加
   \list{\@biblabel{\@arabic\c@enumiv}}%
     {\settowidth\labelwidth{\@biblabel{#1}}%
@@ -404,88 +493,32 @@
   \clubpenalty4000
   \@clubpenalty\clubpenalty
   \widowpenalty4000%
-  \sfcode`\.\@m}
-  {\def\@noitemerr
+  \sfcode`\.\@m
+}{%
+  \def\@noitemerr%
     {\@latex@warning{Empty `thebibliography' environment}}%
-    \endlist}
+  \endlist
+}
 
 % ------------------------------------------------------------------------------
 %謝辞
 % ------------------------------------------------------------------------------
-\newenvironment{acks}{%
-  \renewcommand{\chaptermark}[1]{
-    \markboth{\@ackname}{}
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_setup_acks: {
+  \RenewDocumentCommand{\chaptermark}{m}{
+    \markboth{\tl_use:N \l_ack_name_tl}{}
   }
-  \chapter*{\@ackname}
-  \addcontentsline{toc}{chapter}{\@ackname}
-}{}
-
-
-
-% 章番号とタイトルに改行を入れない
-%http://anchoret.seesaa.net/article/82436197.html
-%
-% \def\@makechapterhead#1{%
-%   \vspace*{2\Cvs}
-%   {\parindent \z@ \raggedright \normalfont
-%   \Huge\headfont
-%   \ifnum \c@secnumdepth >\m@ne
-%     \if@mainmatter
-%       \@chapapp\thechapter\@chappos
-%       \hskip10mm
-%     \fi
-%   \fi
-%   #1\par\nobreak
-%   \vskip 3\Cvs}
-% }
+  \chapter*{\tl_use:N \l_ack_name_tl}
+  \addcontentsline{toc}{chapter}{\tl_use:N \l_ack_name_tl}
+}
+\ExplSyntaxOff
+\NewDocumentEnvironment{acks}{}{\csname thesis_setup_acks:\endcsname}{}
 
 % ------------------------------------------------------------------------------
 % 目次の設定
 % ------------------------------------------------------------------------------
 % 目次に乗せる項目を\subsection まで索引を作成する。
 \setcounter{tocdepth}{2}
-
-% 目次にhyperrefで色がつくのを避ける
-%\let\oldtableofcontents\tableofcontents
-%\renewcommand{\tableofcontents}{{\hypersetup{hidelinks}\oldtableofcontents}}
-
-% ------------------------------------------------------------------------------
-% 付録の設定
-% ------------------------------------------------------------------------------
-\let\oldappendices\appendices
-\let\endoldappendices\endappendices
-\renewenvironment{appendices}{
-  \begin{oldappendices}
-  \noappendicestocpagenum
-  \addappheadtotoc
-  \renewcommand{\thechapter}{\Alph{chapter}}
-  \titleformat{\chapter}[display]{\LARGE\bfseries\sffamily}{\@appendixname\space\thechapter}{0pt}{}
-}{\end{oldappendices}}
-
-\renewcommand{\@redotocentry@pp}[1]{%
-  \let\oldacl@pp=\addcontentsline
-  \def\addcontentsline##1##2##3{%
-    \def\@pptempa{##1}\def\@pptempb{toc}%
-    \ifx\@pptempa\@pptempb
-      \def\@pptempa{##2}\def\@pptempb{#1}%
-      \ifx\@pptempa\@pptempb
-        \oldacl@pp{##1}{##2}{\@appendixname\space ##3}%
-      \else
-        \oldacl@pp{##1}{##2}{\chaptertitlename\space ##3}% added \chaptertitlename
-      \fi
-    \else
-      \oldacl@pp{##1}{##2}{##3}%
-    \fi
-  }
-}
-
-% ***** 付録中の表示を設定 *****
-\AtBeginEnvironment{appendices}{
-  \pagestyle{plain}%
-  \renewcommand{\thesection}{\Alph{chapter}.\,\arabic{section}}
-  \renewcommand{\thesubsection}{\Alph{chapter}.\,\arabic{section}.\,\arabic{subsubsection}}
-  \appendix%
-}
 
 % ------------------------------------------------------------------------------
 % 数式前後のマージンの設定
@@ -537,7 +570,15 @@
 % ------------------------------------------------------------------------------
 \RequirePackage{listings}
 \RequirePackage{jvlisting}
-\renewcommand{\lstlistingname}{リスト}
+
+\ExplSyntaxOn
+  \bool_if:NTF {\l_thesis_english_bool}{
+    \RenewDocumentCommand{\lstlistingname}{}{Listing}
+  }{
+    \RenewDocumentCommand{\lstlistingname}{}{リスト}
+  }
+\ExplSyntaxOff
+
 \lstset{
   basicstyle=\ttfamily\footnotesize,
   commentstyle=\textit,
@@ -560,30 +601,30 @@
 % ------------------------------------------------------------------------------
 \RequirePackage{color}
 \RequirePackage{mdframed}
-\newenvironment{titlebox}[1]
-  {\mdfsetup{
+\NewDocumentEnvironment{titlebox}{m}{%
+  \mdfsetup{
     frametitle={\colorbox{white}{\space#1\space}},
     innertopmargin=0,
     frametitleaboveskip=-.8\ht\strutbox,
     frametitlealignment=\raggedright
-    }
-  \begin{mdframed}%
   }
-  {\end{mdframed}}
+  \begin{mdframed}
+}{%
+  \end{mdframed}
+}
 
 % ------------------------------------------------------------------------------
 % リンクの設定
 % ------------------------------------------------------------------------------
-\definecolor{LinkColor}{rgb}{0.2,0.5,1}
+\definecolor{LinkColor}{rgb}{0.2,0.5,1.0}
 \AtEndPreamble{
   \ifluatex
     \RequirePackage[luatex,pdfa=true]{hyperref}
-  \fi  
+  \fi
   \ifxetex
     \RequirePackage[xetex,pdfa=true]{hyperref}
   \fi
   \RequirePackage{hyperxmp}
-
   \hypersetup{
     pdfencoding=auto,
     pdfapart=3,
@@ -601,26 +642,23 @@
 }
 
 % ***** CleverRefの設定 *****
-\AtEndPreamble{
-  \usepackage[noabbrev,capitalize]{cleveref}
+\ExplSyntaxOn
+\cs_new_protected:Npn \cref_format_jp:nnn #1#2#3 {
+  \crefformat{#1}{##2#2\,##1\,#3##3}%
+  \crefrangeformat{#1}{##3#2\,##1\,#3##4から##5#2\,##2\,#3##6}%
+  \crefmultiformat{#1}{##2#2\,##1\,#3##3}{ならびに##2#2\,##1\,#3##3}{、##2#2\,##1\,#3##3}{ならびに##2#2\,##1\,#3##3}
+}
 
-  \newcommand{\crefformatJP}[3]{%
-    \crefformat{#1}{##2#2\,##1\,#3##3}%
-    \crefrangeformat{#1}{##3#2\,##1\,#3##4から##5#2\,##2\,#3##6}%
-    \crefmultiformat{#1}{##2#2\,##1\,#3##3}{ならびに##2#2\,##1\,#3##3}{、##2#2\,##1\,#3##3}{ならびに##2#2\,##1\,#3##3}%
-  }
-  \renewcommand{\thesection}{\arabic{chapter}.\,\arabic{section}}
-  \renewcommand{\thesubsection}{\arabic{chapter}.\,\arabic{section}.\,\arabic{subsection}}
-
-  \if@english\else
-    \crefformatJP{equation}{式}{}
-    \crefformatJP{figure}{図}{}
-    \crefformatJP{table}{表}{}
-    \crefformatJP{algorithm}{アルゴリズム}{}
-    \crefformatJP{chapter}{第}{章}
-    \crefformatJP{section}{第}{節}
-    \crefformatJP{subsection}{第}{項}
-    \crefformatJP{appendix}{付録}{}
+\cs_new_protected:Npn \thesis_setup_cref: {
+  \bool_if:NTF {\l_thesis_english_bool}{}{
+    \cref_format_jp:nnn{equation}{式}{}
+    \cref_format_jp:nnn{figure}{図}{}
+    \cref_format_jp:nnn{table}{表}{}
+    \cref_format_jp:nnn{algorithm}{アルゴリズム}{}
+    \cref_format_jp:nnn{chapter}{第}{章}
+    \cref_format_jp:nnn{section}{第}{節}
+    \cref_format_jp:nnn{subsection}{第}{項}
+    \cref_format_jp:nnn{appendix}{付録}{}
 
     \newcommand{\crefpairconjunction}{ならびに}
     \newcommand{\crefrangeconjunction}{から}
@@ -629,16 +667,85 @@
 
     \theoremstyle{definition}
     \newtheorem{theorem}{定理}
-    \crefformatJP{theorem}{定理}{}
+    \cref_format_jp:nnn{theorem}{定理}{}
     \newtheorem{lemma}{補題}
-    \crefformatJP{lemma}{補題}{}
+    \cref_format_jp:nnn{lemma}{補題}{}
     \newtheorem*{proof*}{証明}
-    \crefformatJP{proof*}{証明}{}
+    \cref_format_jp:nnn{proof*}{証明}{}
     \newtheorem{definition}{定義}
-    \crefformatJP{definition}{定義}{}
+    \cref_format_jp:nnn{definition}{定義}{}
     \newtheorem{proposition}{命題}
-    \crefformatJP{proposition}{命題}{}
-  \fi
+    \cref_format_jp:nnn{proposition}{命題}{}
+  }
+}
+\ExplSyntaxOff
+
+\AtEndPreamble{
+  \usepackage[noabbrev,capitalize]{cleveref}
+
+  \renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
+  \renewcommand{\thesubsection}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+
+  {\expandafter\csname thesis_setup_cref:\endcsname}
+}
+
+% ------------------------------------------------------------------------------
+% 付録の設定
+% ------------------------------------------------------------------------------
+\LetLtxMacro{\oldappendices}{\appendices}
+\LetLtxMacro{\endoldappendices}{\endappendices}
+\ExplSyntaxOn
+\RenewDocumentEnvironment{appendices}{}{%
+  \begin{oldappendices}
+  \noappendicestocpagenum
+  \addappheadtotoc
+  \renewcommand{\thechapter}{\Alph{chapter}}
+  \titleformat{\chapter}[display]{\LARGE\bfseries\sffamily}{{\tl_use:N \l_appendix_name_tl}\space\thechapter}{0pt}{}
+}{%
+  \end{oldappendices}
+}
+\ExplSyntaxOff
+
+\renewcommand{\@redotocentry@pp}[1]{%
+  \LetLtxMacro{\oldacl@pp}{\addcontentsline}
+  \def\addcontentsline##1##2##3{%
+    \def\@pptempa{##1}\def\@pptempb{toc}%
+    \ifx\@pptempa\@pptempb
+      \def\@pptempa{##2}\def\@pptempb{#1}%
+      \ifx\@pptempa\@pptempb
+        \oldacl@pp{##1}{##2}{\@appendixname\space ##3}%
+      \else
+        \oldacl@pp{##1}{##2}{\chaptertitlename\space ##3}% added \chaptertitlename
+      \fi
+    \else
+      \oldacl@pp{##1}{##2}{##3}%
+    \fi
+  }
+}
+
+% ***** 付録中の表示を設定 *****
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_setup_appendices: {
+  \bool_if:NTF {\l_thesis_english_bool}{
+    \crefname{chapter}{Appendix}{Appendices}
+    \crefname{section}{Appendix}{Appendices}
+    \crefname{subsection}{Appendix}{Appendices}
+    \crefname{subsubsection}{Appendix}{Appendices}
+  }{
+    \cref_format_jp:nnn{chapter}{付録}{}
+    \cref_format_jp:nnn{section}{付録}{}
+    \cref_format_jp:nnn{subsection}{付録}{}
+    \cref_format_jp:nnn{subsubsection}{付録}{}
+  }
+}
+\ExplSyntaxOff
+
+\AtBeginEnvironment{appendices}{
+  \pagestyle{plain}
+  \renewcommand{\thesection}{\Alph{chapter}.\arabic{section}}
+  \renewcommand{\thesubsection}{\Alph{chapter}.\arabic{section}.\arabic{subsection}}
+  {\expandafter\csname thesis_setup_appendices:\endcsname}
+  \appendix
 }
 
 % ------------------------------------------------------------------------------
@@ -654,20 +761,20 @@
 % LaTeXロゴ
 % ------------------------------------------------------------------------------
 \RequirePackage{metalogo}
-\newcommand{\tex}{\TeX\xspace}
-\newcommand{\latex}{\LaTeX\xspace}
+\NewDocumentCommand{\tex}{}{\TeX\xspace}
+\NewDocumentCommand{\latex}{}{\LaTeX\xspace}
 
-\newcommand{\BibTeX}{
+\NewDocumentCommand{\BibTeX}{}{
   \textrm{B\kern-0.1em{\fontsize{1.5ex}{1.5ex}\selectfont I}\kern-0.017em{\fontsize{1.5ex}{1.5ex}\selectfont B}}\kern-0.15em\TeX}
-\newcommand{\bibtex}{\BibTeX\xspace}
-\newcommand{\BibLaTeX}{
+\NewDocumentCommand{\bibtex}{}{\BibTeX\xspace}
+\NewDocumentCommand{\BibLaTeX}{}{
   \textrm{B\kern-0.1em{\fontsize{1.5ex}{1.5ex}\selectfont I}\kern-0.017em{\fontsize{1.5ex}{1.5ex}\selectfont B}}\kern-0.15em\LaTeX}
-\newcommand{\biblatex}{\BibLaTeX\xspace}
+\NewDocumentCommand{\biblatex}{}{\BibLaTeX\xspace}
 
-\newcommand{\PDFLaTeX}{
+\NewDocumentCommand{\PDFLaTeX}{}{
   \textrm{P\kern-0.1em{\fontsize{1.5ex}{1.5ex}\selectfont D}\kern-0.01em{\fontsize{1.5ex}{1.5ex}\selectfont F}}\kern-0.15em\LaTeX}
 
-\newcommand{\pdflatex}{\PDFLaTeX\xspace}
-\newcommand{\lualatex}{\LuaLaTeX\xspace}
-\newcommand{\xelatex}{\XeLaTeX\xspace}
+\NewDocumentCommand{\pdflatex}{}{\PDFLaTeX\xspace}
+\NewDocumentCommand{\lualatex}{}{\LuaLaTeX\xspace}
+\NewDocumentCommand{\xelatex}{}{\XeLaTeX\xspace}
 
