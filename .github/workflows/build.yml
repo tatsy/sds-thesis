@@ -28,6 +28,7 @@ jobs:
       - name: Set up LaTeX environment
         uses: xu-cheng/latex-action@v4
         with:
+          latexmk_use_lualatex: true
           root_file: |
             main_ja.tex
             main_en.tex
