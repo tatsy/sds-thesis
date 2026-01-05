@@ -24,6 +24,10 @@ Overleafを使用する場合は、本リポジトリをZIPファイルでダウ
 - LuaLaTeXの方が日本語は正しく表示される (例えば、行の先頭に小文字がこない)が、コンパイルに時間がかかる。
 - XeLaTeXの方がコンパイルは早いが、日本語の表示があまり正しくない。
 
+## 実行例
+
+[Releases](https://github.com/tatsy/sdsthesis/releases)にビルド済みのPDFがあるので、そちらを参照のこと。
+
 ## VS Codeの用意
 
 良く分からない人はVisual Studio CodeのLaTeX Workshopを使うことを推奨。
@@ -97,4 +101,4 @@ Overleafを使用する場合は、本リポジトリをZIPファイルでダウ
 
 ## Copyright
 
-No License 2024-2025 (c) Tatsuya Yatagawa
+No License 2024-2026 (c) Tatsuya Yatagawa

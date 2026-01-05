@@ -236,9 +236,6 @@
 \def\eaffiliation#1{\gdef\@eaffiliation{#1}}
 \def\edate#1{\gdef\@edate{#1}}
 
-\newlength{\@adjustspace}
-\def\adjustspace#1{\setlength\@adjustspace{#1}}
-
 \ExplSyntaxOn
   \tl_new:N \g_thesis_type_tl
   \tl_new:N \g_thesis_title_tl
@@ -258,7 +255,9 @@
   \tl_gset:Nn \g_thesis_affiliation_tl {\@affiliation}
   \tl_gset:Nn \g_thesis_eaffiliation_tl {\@eaffiliation}
   \tl_gset:Nn \g_thesis_edate_tl {\@edate}
-  \dim_gset:Nn \g_thesis_adjustspace_dim {\@adjustspace}
+  \NewDocumentCommand{\adjustspace}{m}{
+    \dim_gset:Nn \g_thesis_adjustspace_dim {#1}
+  }
 \ExplSyntaxOff
 
 \ExplSyntaxOn
@@ -337,7 +336,6 @@
   % 英語タイトル
   \bool_if:NTF {\l_thesis_english_bool}{
     \vspace*{\dim_use:N \g_thesis_adjustspace_dim}
-    {\bfseries\sffamily\Large {\tl_use:N \g_thesis_type_tl}}\\
     {\rmfamily\LARGE {\tl_use:N \g_thesis_etitle_tl}}\\
     \vspace*{\dim_use:N \l_title_to_author_sep_dim}
     {\Large	{\tl_use:N \g_thesis_eauthor_tl}} \\
