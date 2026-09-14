@@ -284,3 +284,14 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# Generated bilingual examples and regression wrappers
+/main_ja.tex
+/main_en.tex
+/regression_ja.tex
+/regression_en.tex
+/main_ja.pdf
+/main_en.pdf
+/regression_ja.pdf
+/regression_en.pdf
+/tests/__pycache__/

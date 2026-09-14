@@ -21,9 +21,7 @@ jobs:
 
       - name: Make Japanese/English sources
         run: |
-          cp main.tex main_ja.tex
-          cp main.tex main_en.tex
-          sed -i 's/\\usepackage{sdsthesis}/\\usepackage[english]{sdsthesis}/' main_en.tex
+          python3 tests/check.py prepare
 
       - name: Set up LaTeX environment
         uses: xu-cheng/latex-action@v4
@@ -32,6 +30,14 @@ jobs:
           root_file: |
             main_ja.tex
             main_en.tex
+            regression_ja.tex
+            regression_en.tex
+
+      - name: Check regression PDFs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y poppler-utils
+          python3 tests/check.py check
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v5
