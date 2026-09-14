@@ -32,6 +32,7 @@ jobs:
             main_en.tex
             regression_ja.tex
             regression_en.tex
+            regression_kuten.tex
 
       - name: Check regression PDFs
         run: |

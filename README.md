@@ -15,6 +15,19 @@ LaTeX3の利用にあたってTeXLiveは2021年以降のバージョンをイン
 - Roboto: <https://fonts.google.com/specimen/Roboto>
 - STIX Two Text: <https://fonts.google.com/specimen/STIX+Two+Text>
 
+### スタイルファイルのオプション
+
+`\usepackage[オプション]{sdsthesis}`の形で指定する。既定は日本語の卒業論文向けの設定。
+
+| オプション | 効果 |
+|---|---|
+| `english` | 英語で執筆する (表紙に英語の題目・氏名・所属も表示される) |
+| `nologo` | 表紙のロゴを非表示にする |
+| `punctuation=kuten` | 句読点を「、」「。」に統一する (既定の`punctuation=comma`は「，」「．」に統一) |
+| `pdfa` | PDF/A-3u用のメタデータを埋め込む (大学から要求がある場合のみ) |
+
+修士論文として使う場合は`main.tex`のタイトルページの設定 (`\thesistype`、`\affiliation`)をコメントに従って変更する。
+
 ### Overleafの使用
 
 Overleafを使用する場合は、本リポジトリをZIPファイルでダウンロードし、直接Overleafにアップロードする。コンパイラをLuaLaTeXあるいはXeLaTeXに設定すれば文書がビルド出来る。

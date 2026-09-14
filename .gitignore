@@ -290,8 +290,10 @@ TSWLatexianTemp*
 /main_en.tex
 /regression_ja.tex
 /regression_en.tex
+/regression_kuten.tex
 /main_ja.pdf
 /main_en.pdf
 /regression_ja.pdf
 /regression_en.pdf
+/regression_kuten.pdf
 /tests/__pycache__/

@@ -7,6 +7,23 @@
 
 \section*{2026年}
 
+\subsection*{9月14日}
+
+\begin{itemize}
+  \item 最新のTeX Liveで付録の参照が「第A章」と表示される問題を修正
+  \item 表紙の提出日に\texttt{\textbackslash date}が反映されない問題を修正
+  \item 定理環境を英語モードでも使えるように変更
+  \item 付録内の式・図・表の番号を「A.1」の形式に統一
+  \item 概要が複数ページにまたがれるように変更
+  \item \texttt{\textbackslash mathbf}などの数式コマンドを\texttt{unicode-math}の標準定義に戻した
+  \item 句読点の統一方法を\texttt{punctuation}オプションで選べるように変更 (既定は「，」「．」)
+  \item PDF/Aのメタデータ埋め込みを\texttt{pdfa}オプションに変更 (既定は無効)
+  \item PDFのメタデータに題目・著者・言語を設定
+  \item \texttt{main.tex}の既定を日本語の卒業論文に変更し、切り替え方法をコメントに記載
+  \item 章の読み込みを\texttt{\textbackslash include}に変更 (\texttt{\textbackslash includeonly}で部分ビルドが可能)
+  \item GitHub Actionsで日本語・英語の両方をビルドし、回帰テストを実行するように変更
+\end{itemize}
+
 \subsection*{1月5日}
 
 \begin{itemize}
