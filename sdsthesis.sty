@@ -9,6 +9,7 @@
 \RequirePackage{ifthen}
 \RequirePackage{xparse}
 \RequirePackage{letltxmacro}
+\RequirePackage{etoolbox}
 \RequirePackage{expl3}
 \RequirePackage{l3keys2e}
 
@@ -36,7 +37,8 @@
   {
     \sys_if_engine_xetex:F
     {
-      \PackageError{sdsthesis}{Only XeTeX and LuaTeX are supported}
+      \PackageError{sdsthesis}{Only~XeTeX~and~LuaTeX~are~supported}
+      {Compile~this~document~with~LuaLaTeX~or~XeLaTeX.}
     }
   }
 \ExplSyntaxOff
@@ -185,11 +187,11 @@
 \titleformat{\section}{\Large\sffamily\bfseries}{\thesection}{12pt}{}
 \titleformat{\subsection}{\large\sffamily\bfseries}{\thesubsection}{12pt}{}
 
-\renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
-\renewcommand{\thesubsection}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}
-\renewcommand{\theequation}{\arabic{chapter}.\arabic{equation}}
-\renewcommand{\thefigure}{\arabic{chapter}.\arabic{figure}}
-\renewcommand{\thetable}{\arabic{chapter}.\arabic{table}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}}
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
 
 % ------------------------------------------------------------------------------
 % 日本語表記
@@ -244,6 +246,7 @@
   \tl_new:N \g_thesis_eauthor_tl
   \tl_new:N \g_thesis_affiliation_tl
   \tl_new:N \g_thesis_eaffiliation_tl
+  \tl_new:N \g_thesis_date_tl
   \tl_new:N \g_thesis_edate_tl
   \dim_new:N \g_thesis_adjustspace_dim
 
@@ -254,6 +257,7 @@
   \tl_gset:Nn \g_thesis_eauthor_tl {\@eauthor}
   \tl_gset:Nn \g_thesis_affiliation_tl {\@affiliation}
   \tl_gset:Nn \g_thesis_eaffiliation_tl {\@eaffiliation}
+  \tl_gset:Nn \g_thesis_date_tl {\@date}
   \tl_gset:Nn \g_thesis_edate_tl {\@edate}
   \NewDocumentCommand{\adjustspace}{m}{
     \dim_gset:Nn \g_thesis_adjustspace_dim {#1}
@@ -332,7 +336,7 @@
   \vspace*{\dim_use:N \l_author_to_affiliation_sep_dim}
   {\Large {\tl_use:N \g_thesis_affiliation_tl}}\\
   \vspace*{\dim_use:N \l_affiliation_to_date_sep_dim}
-  {\Large {\tl_use:N \g_thesis_edate_tl}} \\
+  {\Large {\tl_use:N \g_thesis_date_tl}} \\
   % 英語タイトル
   \bool_if:NTF {\l_thesis_english_bool}{
     \vspace*{\dim_use:N \g_thesis_adjustspace_dim}
@@ -405,10 +409,9 @@
   \begin{center}
   {\expandafter\csname thesis_setup_abstract_title:\endcsname}
   \end{center}
-  \edef\currentindent{\the\parindent}
-  \begin{minipage}{\textwidth}\setlength{\parindent}{\currentindent}
+  \par
 }{%
-  \end{minipage}
+  \par
   \clearpage
 }
 
@@ -657,23 +660,38 @@
     \cref_format_jp:nnn{section}{第}{節}
     \cref_format_jp:nnn{subsection}{第}{項}
     \cref_format_jp:nnn{appendix}{付録}{}
+    \cref_format_jp:nnn{subappendix}{付録}{}
+    \cref_format_jp:nnn{subsubappendix}{付録}{}
+    \cref_format_jp:nnn{subsubsubappendix}{付録}{}
+    \cref_format_jp:nnn{theorem}{定理}{}
+    \cref_format_jp:nnn{lemma}{補題}{}
+    \cref_format_jp:nnn{definition}{定義}{}
+    \cref_format_jp:nnn{proposition}{命題}{}
 
     \newcommand{\crefpairconjunction}{ならびに}
     \newcommand{\crefrangeconjunction}{から}
     \newcommand{\crefmiddleconjunction}{、}
     \newcommand{\creflastconjunction}{、ならびに}
 
-    \theoremstyle{definition}
+  }
+}
+\ExplSyntaxOff
+
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_setup_theorems: {
+  \theoremstyle{definition}
+  \bool_if:NTF \l_thesis_english_bool {
+    \newtheorem{theorem}{Theorem}
+    \newtheorem{lemma}{Lemma}
+    \newtheorem*{proof*}{Proof}
+    \newtheorem{definition}{Definition}
+    \newtheorem{proposition}{Proposition}
+  }{
     \newtheorem{theorem}{定理}
-    \cref_format_jp:nnn{theorem}{定理}{}
     \newtheorem{lemma}{補題}
-    \cref_format_jp:nnn{lemma}{補題}{}
     \newtheorem*{proof*}{証明}
-    \cref_format_jp:nnn{proof*}{証明}{}
     \newtheorem{definition}{定義}
-    \cref_format_jp:nnn{definition}{定義}{}
     \newtheorem{proposition}{命題}
-    \cref_format_jp:nnn{proposition}{命題}{}
   }
 }
 \ExplSyntaxOff
@@ -681,10 +699,11 @@
 \AtEndPreamble{
   \usepackage[noabbrev,capitalize]{cleveref}
 
-  \renewcommand{\thesection}{\arabic{chapter}.\arabic{section}}
-  \renewcommand{\thesubsection}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+  \renewcommand{\thesection}{\thechapter.\arabic{section}}
+  \renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}}
 
-  {\expandafter\csname thesis_setup_cref:\endcsname}
+  \csname thesis_setup_theorems:\endcsname
+  \csname thesis_setup_cref:\endcsname
 }
 
 % ------------------------------------------------------------------------------
@@ -721,29 +740,18 @@
   }
 }
 
-% ***** 付録中の表示を設定 *****
-\ExplSyntaxOn
-\cs_new_protected:Npn \thesis_setup_appendices: {
-  \bool_if:NTF {\l_thesis_english_bool}{
-    \crefname{chapter}{Appendix}{Appendices}
-    \crefname{section}{Appendix}{Appendices}
-    \crefname{subsection}{Appendix}{Appendices}
-    \crefname{subsubsection}{Appendix}{Appendices}
-  }{
-    \cref_format_jp:nnn{chapter}{付録}{}
-    \cref_format_jp:nnn{section}{付録}{}
-    \cref_format_jp:nnn{subsection}{付録}{}
-    \cref_format_jp:nnn{subsubsection}{付録}{}
-  }
-}
-\ExplSyntaxOff
-
+% cleveref assigns appendix/subappendix types via \appendix; keep the
+% main-text chapter/section formats unchanged for references from appendices.
+% Recent LaTeX kernels (first aid for cleveref, 2024-10 and later) recompute
+% the label type from the raw counter name in the `label' hook, which bypasses
+% cleveref's \appendix hook, so the aliases are also declared explicitly.
 \AtBeginEnvironment{appendices}{
   \pagestyle{plain}
-  \renewcommand{\thesection}{\Alph{chapter}.\arabic{section}}
-  \renewcommand{\thesubsection}{\Alph{chapter}.\arabic{section}.\arabic{subsection}}
-  {\expandafter\csname thesis_setup_appendices:\endcsname}
   \appendix
+  \crefalias{chapter}{appendix}
+  \crefalias{section}{subappendix}
+  \crefalias{subsection}{subsubappendix}
+  \crefalias{subsubsection}{subsubsubappendix}
 }
 
 % ------------------------------------------------------------------------------
