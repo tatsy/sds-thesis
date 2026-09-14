@@ -9,6 +9,7 @@
 \RequirePackage{ifthen}
 \RequirePackage{xparse}
 \RequirePackage{letltxmacro}
+\RequirePackage{etoolbox}
 \RequirePackage{expl3}
 \RequirePackage{l3keys2e}
 
@@ -36,7 +37,8 @@
   {
     \sys_if_engine_xetex:F
     {
-      \PackageError{sdsthesis}{Only XeTeX and LuaTeX are supported}
+      \PackageError{sdsthesis}{Only~XeTeX~and~LuaTeX~are~supported}
+      {Compile~this~document~with~LuaLaTeX~or~XeLaTeX.}
     }
   }
 \ExplSyntaxOff
@@ -244,6 +246,7 @@
   \tl_new:N \g_thesis_eauthor_tl
   \tl_new:N \g_thesis_affiliation_tl
   \tl_new:N \g_thesis_eaffiliation_tl
+  \tl_new:N \g_thesis_date_tl
   \tl_new:N \g_thesis_edate_tl
   \dim_new:N \g_thesis_adjustspace_dim
 
@@ -254,6 +257,7 @@
   \tl_gset:Nn \g_thesis_eauthor_tl {\@eauthor}
   \tl_gset:Nn \g_thesis_affiliation_tl {\@affiliation}
   \tl_gset:Nn \g_thesis_eaffiliation_tl {\@eaffiliation}
+  \tl_gset:Nn \g_thesis_date_tl {\@date}
   \tl_gset:Nn \g_thesis_edate_tl {\@edate}
   \NewDocumentCommand{\adjustspace}{m}{
     \dim_gset:Nn \g_thesis_adjustspace_dim {#1}
@@ -332,7 +336,7 @@
   \vspace*{\dim_use:N \l_author_to_affiliation_sep_dim}
   {\Large {\tl_use:N \g_thesis_affiliation_tl}}\\
   \vspace*{\dim_use:N \l_affiliation_to_date_sep_dim}
-  {\Large {\tl_use:N \g_thesis_edate_tl}} \\
+  {\Large {\tl_use:N \g_thesis_date_tl}} \\
   % 英語タイトル
   \bool_if:NTF {\l_thesis_english_bool}{
     \vspace*{\dim_use:N \g_thesis_adjustspace_dim}
@@ -405,10 +409,9 @@
   \begin{center}
   {\expandafter\csname thesis_setup_abstract_title:\endcsname}
   \end{center}
-  \edef\currentindent{\the\parindent}
-  \begin{minipage}{\textwidth}\setlength{\parindent}{\currentindent}
+  \par
 }{%
-  \end{minipage}
+  \par
   \clearpage
 }
 
