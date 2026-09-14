@@ -1,9 +1,11 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
 \ifdefined\SdsTestEnglish
-  \usepackage[english,nologo]{sdsthesis}
+  \usepackage[english,nologo,pdfa]{sdsthesis}
+\else\ifdefined\SdsTestKuten
+  \usepackage[nologo,punctuation=kuten]{sdsthesis}
 \else
   \usepackage[nologo]{sdsthesis}
-\fi
+\fi\fi
 \thesistype{回帰テスト}
 \title{表紙と参照の確認}
 \author{山田 太郎}
@@ -36,6 +38,8 @@ ABSTRACT-END.
 \mainmatter
 \chapter{本文}\label{chap:body}
 \section{本文の節}\label{sec:body}
+Punctuation: 読点、と句点。全角の，と．も片方に統一される。
+Math: $\mathbf{A}\mathbf{x} = \mathrm{d}\mathit{v} + \symbfit{y}$.
 Forward: \cref{chap:appendix}; \cref{sec:appendix};
 \cref{subsec:appendix}; \cref{eq:appendix};
 \cref{fig:appendix}; \cref{tab:appendix}.

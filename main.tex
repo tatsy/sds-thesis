@@ -1,7 +1,13 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
-% \usepackage{sdsthesis}
-% \usepackage[nologo]{sdsthesis} % ロゴを非表示
-\usepackage[english]{sdsthesis} % for English
+
+% ***** テンプレートのオプション *****
+% 既定は日本語の卒業論文向けの設定。必要に応じて以下のオプションを追加する。
+%   english           : 英語で執筆する (表紙に英語の題目・氏名・所属も表示される)
+%   nologo            : 表紙のロゴを非表示にする
+%   punctuation=kuten : 句読点を「、」「。」に統一する (既定は「，」「．」に統一)
+%   pdfa              : PDF/A-3u用のメタデータを埋め込む (大学からの要求がある場合のみ)
+% 例: \usepackage[english,nologo]{sdsthesis}
+\usepackage{sdsthesis}
 
 % 図が多くビルドに時間がかかるときは
 % \documentclass[12pt,a4paper,twoside,openany,draft]{book}
@@ -19,13 +25,10 @@
 % ！注意！
 % グラフィクス用のpackageは既にusepackageしているので、
 % \usepackage[dvips]{graphics}などと書くとエラーになる
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsthm}
-\usepackage{mathtools}
+% amsmath, amssymb, amsthm, mathtools, siunitx, hyperref, cleverefなどは
+% sdsthesis.styが読み込んでいるので、ここで再度読み込む必要はない
 \usepackage{url}
 \usepackage{array}
-\usepackage{siunitx}
 
 % ***** テーブル用のパッケージ *****
 \usepackage{tabularray}
@@ -83,20 +86,33 @@
 \addbibresource{references.bib}
 
 % ***** 画像を入れるフォルダの設定 *****
-\graphicspath{{figs}}
+\graphicspath{{figs/}}
+
+% ***** 執筆中に一部の章だけをビルドする設定 *****
+% 全体のビルドに時間がかかるときは、処理する章を\includeonlyで指定する。
+% 例: \includeonly{chapters/intro,chapters/method}
+% 指定しなかった章の番号やページ番号は前回のビルド結果から維持される。
+% コメントアウトすると全ての章がビルドされる。
+% \includeonly{chapters/intro}
 
 % ***** タイトルページ *****
-\thesistype{令和7年度~修士論文}
+% 卒業論文の場合 (既定)
+\thesistype{令和7年度~卒業論文}
 \title{卒業・修了論文の書き方}
 \author{山田 太郎} % 自分の名前
-\affiliation{一橋大学大学院\\[.5\zh]ソーシャル・データサイエンス研究科 修士課程}
+\affiliation{一橋大学\\[.5\zh]ソーシャル・データサイエンス学部}
 \date{2026年3月 提出}
-% 英語の情報 (日本語の場合には不要)
+% 修士論文の場合は\thesistypeと\affiliationを次のように変更する
+% \thesistype{令和7年度~修士論文}
+% \affiliation{一橋大学大学院\\[.5\zh]ソーシャル・データサイエンス研究科 修士課程}
+
+% 英語の情報 (englishオプションを指定した場合に表紙に表示される。日本語の場合は不要)
 \etitle{How to Write a Graduation Thesis}
 \eauthor{Taro Yamada} % 自分の名前 (英語)
-\eaffiliation{Graduate of Social Data Science\\Hitotsubashi University}
+\eaffiliation{School of Social Data Science\\Hitotsubashi University}
+% 修士論文の場合: \eaffiliation{Graduate School of Social Data Science\\Hitotsubashi University}
 \edate{March, 2026}
-% 日本語タイトルと英語タイトルの間のスペース
+% 日本語タイトルと英語タイトルの間のスペース (englishオプションのときのみ使用)
 \adjustspace{80truept}
 
 % ------------------------------------------------------------------------------
@@ -112,7 +128,7 @@
 \begin{abstract}
  論文全体の概要を書く。概要は、論文全体の内容がイメージできるものである必要があるので、提案法についてだけでなく、研究背景や、提案法に至る着想、提案法の中身、実験結果、展望も含め全体について簡潔に書くことを心がける。その際、多くのことを主張することは避けて、論文の最も重要な部分、例えば、研究上の新規性であったり、提案法により得られた有効な結果について重点的に述べる。時折、やたら研究背景が長く書いてある概要を見かけるが、最低でも自分が研究したことが半分以上は概要に入るようにする。 \\
 
- Write the abstract here. As the abstract should provide an overview of the whole thesis, you should include brief descriptions of the entire contents, i.e., background, inspiration, proposed method, experimental results, and future spectacular. Then, you should avoid claiming too many things. You should focus on important perspectives of the thesis, for instance, the research novelty and main findings offered by the proposed method. Some students write too much research background in the abstract, but it is not preferable. You should write what you did in at least one-half of the abstract.
+ Write the abstract here. As the abstract should provide an overview of the whole thesis, you should include brief descriptions of the entire contents, i.e., background, inspiration, proposed method, experimental results, and future directions. Then, you should avoid claiming too many things. You should focus on important perspectives of the thesis, for instance, the research novelty and main findings offered by the proposed method. Some students write too much research background in the abstract, but it is not preferable. You should write what you did in at least one-half of the abstract.
 \end{abstract}
 
 % ***** 目次たち *****
@@ -132,13 +148,14 @@
 
 % 章ごとにファイルを分割すると良い
 % ルートのディレクトリが散らからないようにサブフォルダに入れる
-% 全体をコンパイルするには時間がかかるので執筆時は適宜、以下をコメントアウトする
-\input{chapters/intro}
-\input{chapters/changelog}
-\input{chapters/relwork}
-\input{chapters/method}
-\input{chapters/results}
-\input{chapters/conclusion}
+% 一部の章だけをビルドしたいときは、ここをコメントアウトするのではなく
+% プリアンブルの\includeonlyで章を指定する (章番号やページ番号が維持される)
+\include{chapters/intro}
+\include{chapters/changelog}
+\include{chapters/relwork}
+\include{chapters/method}
+\include{chapters/results}
+\include{chapters/conclusion}
 
 % ------------------------------------------------------------------------------
 % 謝辞
@@ -151,14 +168,9 @@
 % 参考文献
 % ------------------------------------------------------------------------------
 
-% 今回のフォーマットはBibLaTeXを使っているが、普通にBibTeXを使う場合は
-% コメントされている部分を変更する
-
-% ***** BibTeX用 *****
-% \bibliographystyle{plain}
-% \bibliography{references}
-
-% ***** BibLaTeX用 *****
+% 本テンプレートは文献処理にBibLaTeX + Biberを使う (プリアンブルの設定を参照)。
+% 従来のBibTeXに切り替えるにはプリアンブルのbiblatex関連の設定もすべて
+% 削除する必要があるため、BibLaTeXのまま使うことを推奨する。
 \printbibliography[title=\biblioname,heading=bibintoc]
 
 % ------------------------------------------------------------------------------

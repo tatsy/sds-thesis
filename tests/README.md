@@ -5,7 +5,7 @@ plus Python 3 and Poppler (`pdftotext`):
 
 ```sh
 python3 tests/check.py prepare
-latexmk -lualatex main_ja.tex main_en.tex regression_ja.tex regression_en.tex
+latexmk -lualatex main_ja.tex main_en.tex regression_ja.tex regression_en.tex regression_kuten.tex
 python3 tests/check.py check
 ```
 
@@ -16,16 +16,18 @@ to pdfLaTeX, which `sdsthesis.sty` rejects.
 The generated main documents exercise both language modes with logos. The
 regression documents use `nologo`, omit English metadata in Japanese mode, and
 exercise bilingual theorem environments, forward/backward appendix references,
-appendix equation/figure/table numbers, and a multi-page abstract. The checker
-inspects the build logs, auxiliary labels and PDF text.
+appendix equation/figure/table numbers, and a multi-page abstract. The English
+variant enables `pdfa`, and the `kuten` variant selects `punctuation=kuten`. The
+checker inspects the build logs, auxiliary labels, PDF text, PDF/A markers and the
+title/author metadata reported by `pdfinfo`.
 
 To check XeLaTeX, clean the generated outputs and repeat the build with XeLaTeX.
 `latexmkrc` only lists `main.tex` as a default file, so pass the generated wrapper
 filenames explicitly:
 
 ```sh
-latexmk -C main_ja.tex main_en.tex regression_ja.tex regression_en.tex
-latexmk -xelatex main_ja.tex main_en.tex regression_ja.tex regression_en.tex
+latexmk -C main_ja.tex main_en.tex regression_ja.tex regression_en.tex regression_kuten.tex
+latexmk -xelatex main_ja.tex main_en.tex regression_ja.tex regression_en.tex regression_kuten.tex
 python3 tests/check.py check
 ```
 

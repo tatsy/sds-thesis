@@ -18,8 +18,9 @@ def prepare():
         )
         assert count == 1, 'Expected one active sdsthesis package declaration'
         (ROOT / f'main_{language}.tex').write_text(text)
-        prefix = r'\def\SdsTestEnglish{1}' if language == 'en' else ''
-        (ROOT / f'regression_{language}.tex').write_text(
+    for variant, prefix in [('ja', ''), ('en', r'\def\SdsTestEnglish{1}'),
+                            ('kuten', r'\def\SdsTestKuten{1}')]:
+        (ROOT / f'regression_{variant}.tex').write_text(
             prefix + '\n' + r'\input{tests/regression.tex}' + '\n'
         )
 
@@ -34,20 +35,50 @@ def compact(text):
     return re.sub(r'\s+', '', text)
 
 
+def pdf_info(name):
+    return subprocess.check_output(['pdfinfo', str(ROOT / f'{name}.pdf')], text=True)
+
+
 def check():
-    for language in ['ja', 'en']:
-        for prefix in ['main', 'regression']:
-            name = f'{prefix}_{language}'
-            log = (ROOT / f'{name}.log').read_text(errors='replace')
-            for error in ['Undefined control sequence', 'undefined references',
-                          'undefined citations', 'multiply defined',
-                          'Reference format for label type', 'Overfull \\vbox']:
-                assert error not in log, f'{name}: {error}'
-            text = pdf_text(name)
-            cover = compact(text.split('\f')[0])
-            if prefix == 'regression':
-                assert '2026年3月提出' in cover, f'{name}: Japanese date missing'
-                assert ('March,2026' in cover) == (language == 'en'), name
+    documents = ['main_ja', 'main_en', 'regression_ja', 'regression_en', 'regression_kuten']
+    for name in documents:
+        log = (ROOT / f'{name}.log').read_text(errors='replace')
+        for error in ['Undefined control sequence', 'undefined references',
+                      'undefined citations', 'multiply defined',
+                      'Reference format for label type', 'Overfull \\vbox',
+                      'Token not allowed in a PDF string']:
+            assert error not in log, f'{name}: {error}'
+        text = pdf_text(name)
+        cover = compact(text.split('\f')[0])
+        english = name == 'main_en' or name == 'regression_en'
+        if name.startswith('regression'):
+            assert '2026年3月提出' in cover, f'{name}: Japanese date missing'
+            assert ('March,2026' in cover) == english, name
+        # PDF/A metadata only with the pdfa option (regression_en declares it)
+        pdfa = b'pdfaid:part' in (ROOT / f'{name}.pdf').read_bytes()
+        assert pdfa == (name == 'regression_en'), f'{name}: unexpected PDF/A state'
+        # punctuation is unified in one direction according to the option
+        body = compact(text)
+        if name == 'regression_kuten':
+            assert '、' in body and '。' in body, f'{name}: kuten punctuation missing'
+            assert '，' not in body and '．' not in body, f'{name}: comma punctuation left'
+        else:
+            assert '，' in body and '．' in body, f'{name}: comma punctuation missing'
+            assert '、' not in body and '。' not in body, f'{name}: kuten punctuation left'
+    # document metadata comes from the cover information
+    for name, title, author in [('main_ja', '卒業・修了論文の書き方', '山田 太郎'),
+                                ('main_en', 'How to Write a Graduation Thesis', 'Taro Yamada'),
+                                ('regression_ja', '表紙と参照の確認', '山田 太郎'),
+                                ('regression_en', 'Regression test', 'Taro Yamada')]:
+        info = pdf_info(name)
+        assert re.search(rf'^Title:\s+{re.escape(title)}$', info, re.M), (name, 'title')
+        if name == 'regression_en':
+            # hyperxmp (pdfa) keeps authors only in the XMP packet, not in the Info dictionary
+            pdf = (ROOT / f'{name}.pdf').read_bytes()
+            assert f'<rdf:li>{author}</rdf:li>'.encode() in pdf, (name, 'author')
+        else:
+            assert re.search(rf'^Author:\s+{re.escape(author)}$', info, re.M), (name, 'author')
+    for language in ['ja', 'en', 'kuten']:
         name = f'regression_{language}'
         pages = pdf_text(name).split('\f')
         first = next(i for i, page in enumerate(pages) if 'ABSTRACT-START' in page)
@@ -60,7 +91,7 @@ def check():
                               ('tab:appendix', 'A.1'), ('eq:appendix-b', 'B.1')]:
             assert rf'\newlabel{{{label}}}{{{{{number}}}' in aux, (name, label)
         text = compact('\n'.join(pages))
-        if language == 'ja':
+        if language != 'en':
             expected = ['Forward:付録A;付録A.1;付録A.1.1;式A.1;図A.1;表A.1',
                         'Backward:第1章;第1.1節;式1.1',
                         '定理1', '補題1', '定義1', '命題1', '証明',
@@ -71,7 +102,8 @@ def check():
                         'Theorem1', 'Lemma1', 'Definition1', 'Proposition1', 'Proof']
         for item in expected:
             assert item in text, (name, item)
-    print('PASS: dates, bilingual theorems, appendix numbers/references and long abstracts')
+    print('PASS: dates, metadata, PDF/A option, punctuation, bilingual theorems, '
+          'appendix numbers/references and long abstracts')
 
 
 if __name__ == '__main__':

@@ -22,10 +22,22 @@
   \bool_new:N \l_thesis_nologo_bool
   \bool_gset_false:N \l_thesis_nologo_bool
 
+  % 句読点のオプション (comma: 「，」「．」に統一, kuten: 「、」「。」に統一)
+  \tl_new:N \l_thesis_punctuation_tl
+  \tl_set:Nn \l_thesis_punctuation_tl {comma}
+
+  % PDF/Aのメタデータを埋め込むオプション (既定は無効)
+  \bool_new:N \l_thesis_pdfa_bool
+  \bool_set_false:N \l_thesis_pdfa_bool
+
   % オプションの処理
   \keys_define:nn {sdsthesis}{
     english .bool_set:N = \l_thesis_english_bool,
     nologo .bool_set:N = \l_thesis_nologo_bool,
+    pdfa .bool_set:N = \l_thesis_pdfa_bool,
+    punctuation .choices:nn = {comma, kuten}
+      { \tl_set_eq:NN \l_thesis_punctuation_tl \l_keys_choice_tl },
+    punctuation .value_required:n = true,
     unknown .code:n = {
       \PackageWarning{sdsthesis}{Unknown option `\CurrentOption' ignored}
     },
@@ -50,14 +62,12 @@
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{amsthm}
-\RequirePackage{color}
 \RequirePackage[svgnames,dvipsnames,x11names]{xcolor}
 \RequirePackage[pagestyles]{titlesec}
 \RequirePackage{fancyhdr}
 \RequirePackage{fancybox}
 \RequirePackage{emptypage}
 \RequirePackage{xspace}
-\RequirePackage{charter}
 \RequirePackage[title]{appendix}
 
 \ifluatex
@@ -93,16 +103,16 @@
 % 英文・数式フォントの設定
 % ------------------------------------------------------------------------------
 
-\RequirePackage[math-style=ISO]{unicode-math}
-\unimathsetup{math-style=TeX,bold-style=TeX}
+% mathrm=sym: \mathrmはテキストフォントではなく数式フォントを使う。
+% テキストフォントには数式用のギリシャ文字がないため、標準設定のままだと
+% \mathrm{\mu m}のようなギリシャ文字が出力されなくなる。
+\RequirePackage[math-style=TeX,bold-style=TeX,mathrm=sym]{unicode-math}
 \setmainfont{STIX Two Text}[Scale=1.0]
 \setmathfont{STIX Two Math}[Scale=1.0]
 \setsansfont{Roboto}[Scale=1.0, BoldFont=Roboto Medium, ItalicFont=Roboto Italic, BoldItalicFont=Roboto Medium Italic]
 
-\AtBeginDocument{\renewcommand{\mathbf}[1]{\symbf{#1}}}
-\AtBeginDocument{\renewcommand{\mathrm}[1]{\symrm{#1}}}
-\AtBeginDocument{\renewcommand{\mathit}[1]{\symit{#1}}}
-\AtBeginDocument{\newcommand{\bm}[1]{\symbfit{#1}}}
+% \mathbf, \mathitはunicode-mathの標準定義をそのまま使う。
+% ボールドイタリックが必要な場合はunicode-mathの\symbfitを使う。
 
 % 数式の下付き・上付き文字のサイズを調整
 \RequirePackage{latexsym}
@@ -115,8 +125,17 @@
 % 句読点の自動置換
 % ------------------------------------------------------------------------------
 \RequirePackage{newunicodechar}
-\newunicodechar{。}{．}
-\newunicodechar{、}{，}
+\ExplSyntaxOn
+\str_if_eq:VnTF \l_thesis_punctuation_tl {kuten}{
+  % 「、」「。」に統一する
+  \newunicodechar{，}{、}
+  \newunicodechar{．}{。}
+}{
+  % 「，」「．」に統一する (既定)
+  \newunicodechar{、}{，}
+  \newunicodechar{。}{．}
+}
+\ExplSyntaxOff
 \newunicodechar{⭕}{\raisebox{.2ex}{$\bigcirc$}}
 \newunicodechar{○}{\raisebox{.2ex}{$\bigcirc$}}
 \newunicodechar{◯}{\raisebox{.2ex}{$\bigcirc$}}
@@ -207,13 +226,13 @@
   \tl_set:Nn \l_chapabst_name_tl {Chapter summary}
   \tl_set:Nn \l_ack_name_tl {Acknowledgment}
   \tl_set:Nn \l_appendix_name_tl {Appendix}
-  \NewDocumentCommand{\biblioname}{}{References}
+  \newcommand{\biblioname}{References}
 }{
   \tl_set:Nn \l_abstract_name_tl {概要}
   \tl_set:Nn \l_chapabst_name_tl {本章の概要}
   \tl_set:Nn \l_ack_name_tl {謝辞}
   \tl_set:Nn \l_appendix_name_tl {付録}
-  \NewDocumentCommand{\biblioname}{}{参考文献}
+  \newcommand{\biblioname}{参考文献}
 
   \RenewDocumentCommand{\figurename}{}{図}
   \RenewDocumentCommand{\tablename}{}{表}
@@ -323,6 +342,29 @@
   \endgroup
 }
 
+% PDFのメタデータ (題目・著者)を表紙の情報から設定
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_set_pdf_metadata: {
+  % 表紙の情報がまだ設定されていなければ何もしない
+  \cs_if_exist:NT \@thesistype {
+    \thesis_set_pdf_metadata_aux:
+  }
+}
+\cs_new_protected:Npn \thesis_set_pdf_metadata_aux: {
+  \bool_if:NTF \l_thesis_english_bool {
+    \hypersetup{
+      pdftitle = {\tl_use:N \g_thesis_etitle_tl},
+      pdfauthor = {\tl_use:N \g_thesis_eauthor_tl},
+    }
+  }{
+    \hypersetup{
+      pdftitle = {\tl_use:N \g_thesis_title_tl},
+      pdfauthor = {\tl_use:N \g_thesis_author_tl},
+    }
+  }
+}
+\ExplSyntaxOff
+
 % 表紙コマンドの定義
 \ExplSyntaxOn
 \cs_new_protected:Npn \thesis_make_title: {
@@ -360,7 +402,12 @@
 }
 \ExplSyntaxOff
 
+% hyperxmp (pdfaオプション)は\begin{document}の時点で著者情報を確定するため、
+% プリアンブルで表紙の情報が与えられていれば文書の開始時にメタデータを設定し、
+% \maketitleでも改めて設定する。
+\AtBeginDocument{{\expandafter\csname thesis_set_pdf_metadata:\endcsname}}
 \renewcommand{\maketitle}{
+  {\expandafter\csname thesis_set_pdf_metadata:\endcsname}
 	\thispagestyle{empty}
   \fancypage{\coverpagebox}{}
   \begin{center}
@@ -600,7 +647,6 @@
 % ------------------------------------------------------------------------------
 % 枠付き段落
 % ------------------------------------------------------------------------------
-\RequirePackage{color}
 \RequirePackage{mdframed}
 \NewDocumentEnvironment{titlebox}{m}{%
   \mdfsetup{
@@ -618,18 +664,31 @@
 % リンクの設定
 % ------------------------------------------------------------------------------
 \definecolor{LinkColor}{rgb}{0.2,0.5,1.0}
+\ExplSyntaxOn
+\cs_new_protected:Npn \thesis_load_hyperref: {
+  % PDF/A用のメタデータはpdfaオプションを指定したときのみ埋め込む
+  \bool_if:NTF \l_thesis_pdfa_bool {
+    \ifluatex \RequirePackage[luatex,pdfa=true]{hyperref} \fi
+    \ifxetex \RequirePackage[xetex,pdfa=true]{hyperref} \fi
+    \RequirePackage{hyperxmp}
+    \hypersetup{pdfapart=3, pdfaconformance=u}
+  }{
+    \ifluatex \RequirePackage[luatex]{hyperref} \fi
+    \ifxetex \RequirePackage[xetex]{hyperref} \fi
+  }
+  % PDFのメタデータに文書の言語を設定
+  \bool_if:NTF \l_thesis_english_bool {
+    \hypersetup{pdflang=en}
+  }{
+    \hypersetup{pdflang=ja}
+  }
+}
+\ExplSyntaxOff
+
 \AtEndPreamble{
-  \ifluatex
-    \RequirePackage[luatex,pdfa=true]{hyperref}
-  \fi
-  \ifxetex
-    \RequirePackage[xetex,pdfa=true]{hyperref}
-  \fi
-  \RequirePackage{hyperxmp}
+  \csname thesis_load_hyperref:\endcsname
   \hypersetup{
     pdfencoding=auto,
-    pdfapart=3,
-    pdfaconformance=u,
     backref=true,
     bookmarks=true,
     bookmarksnumbered=true,
@@ -767,8 +826,9 @@
 % LaTeXロゴ
 % ------------------------------------------------------------------------------
 \RequirePackage{metalogo}
-\NewDocumentCommand{\tex}{}{\TeX\xspace}
-\NewDocumentCommand{\latex}{}{\LaTeX\xspace}
+% 章題などに使われたときにPDFのしおりでも文字列として扱えるようにする
+\newcommand{\tex}{\texorpdfstring{\TeX}{TeX}\xspace}
+\newcommand{\latex}{\texorpdfstring{\LaTeX}{LaTeX}\xspace}
 
 \NewDocumentCommand{\BibTeX}{}{
   \textrm{B\kern-0.1em{\fontsize{1.5ex}{1.5ex}\selectfont I}\kern-0.017em{\fontsize{1.5ex}{1.5ex}\selectfont B}}\kern-0.15em\TeX}
