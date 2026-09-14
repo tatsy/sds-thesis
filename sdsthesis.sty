@@ -742,9 +742,16 @@
 
 % cleveref assigns appendix/subappendix types via \appendix; keep the
 % main-text chapter/section formats unchanged for references from appendices.
+% Recent LaTeX kernels (first aid for cleveref, 2024-10 and later) recompute
+% the label type from the raw counter name in the `label' hook, which bypasses
+% cleveref's \appendix hook, so the aliases are also declared explicitly.
 \AtBeginEnvironment{appendices}{
   \pagestyle{plain}
   \appendix
+  \crefalias{chapter}{appendix}
+  \crefalias{section}{subappendix}
+  \crefalias{subsection}{subsubappendix}
+  \crefalias{subsubsection}{subsubsubappendix}
 }
 
 % ------------------------------------------------------------------------------
