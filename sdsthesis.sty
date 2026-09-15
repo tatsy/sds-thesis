@@ -61,7 +61,6 @@
 % 必要なパッケージ
 % ------------------------------------------------
 \RequirePackage{mathtools}
-\RequirePackage{amssymb}
 \RequirePackage{amsthm}
 \RequirePackage[svgnames,dvipsnames,x11names]{xcolor}
 \RequirePackage[pagestyles]{titlesec}
@@ -112,7 +111,6 @@
 % ボールドイタリックが必要な場合はunicode-mathの\symbfitを使う。
 
 % 数式の下付き・上付き文字のサイズを調整
-\RequirePackage{latexsym}
 \DeclareMathSizes{10}{10}{7}{7}
 \DeclareMathSizes{10.5}{11}{7}{7} % For size 10 text
 \DeclareMathSizes{11}{12}{6.5}{6.5} % For size 11 text
@@ -249,17 +247,16 @@
 \dim_new:N \g__sdsthesis_adjustspace_dim
 
 % 表紙用変数の一括設定
-
 \keys_define:nn { sdsthesis / metadata }{
-  type .tl_set:N = \g__sdsthesis_type_tl,
+  type .tl_gset:N = \g__sdsthesis_type_tl,
   title .code:n = { \title{#1} },
   author .code:n = { \author{#1} },
-  affiliation .tl_set:N = \g__sdsthesis_affiliation_tl,
+  affiliation .tl_gset:N = \g__sdsthesis_affiliation_tl,
   date .code:n = { \date{#1} },
-  etitle .tl_set:N = \g__sdsthesis_etitle_tl,
-  eauthor .tl_set:N = \g__sdsthesis_eauthor_tl,
-  eaffiliation .tl_set:N = \g__sdsthesis_eaffiliation_tl,
-  edate .tl_set:N = \g__sdsthesis_edate_tl,
+  etitle .tl_gset:N = \g__sdsthesis_etitle_tl,
+  eauthor .tl_gset:N = \g__sdsthesis_eauthor_tl,
+  eaffiliation .tl_gset:N = \g__sdsthesis_eaffiliation_tl,
+  edate .tl_gset:N = \g__sdsthesis_edate_tl,
   adjustspace .code:n = {
     \dim_gset:Nn \g__sdsthesis_adjustspace_dim {#1}
   },
@@ -270,31 +267,31 @@
 }
 
 \NewDocumentCommand{\thesistype}{m}{
-  \tl_gset:Nn \g__sdsthesis_type_tl {#1}
+  \thesissetup{type={#1}}
 }
 
 \NewDocumentCommand{\etitle}{m}{
-  \tl_gset:Nn \g__sdsthesis_etitle_tl {#1}
+  \thesissetup{etitle={#1}}
 }
 
 \NewDocumentCommand{\eauthor}{m}{
-  \tl_gset:Nn \g__sdsthesis_eauthor_tl {#1}
+  \thesissetup{eauthor={#1}}
 }
 
 \NewDocumentCommand{\affiliation}{m}{
-  \tl_gset:Nn \g__sdsthesis_affiliation_tl {#1}
+  \thesissetup{affiliation={#1}}
 }
 
 \NewDocumentCommand{\eaffiliation}{m}{
-  \tl_gset:Nn \g__sdsthesis_eaffiliation_tl {#1}
+  \thesissetup{eaffiliation={#1}}
 }
 
 \NewDocumentCommand{\edate}{m}{
-  \tl_gset:Nn \g__sdsthesis_edate_tl {#1}
+  \thesissetup{edate={#1}}
 }
 
 \NewDocumentCommand{\adjustspace}{m}{
-  \dim_gset:Nn \g__sdsthesis_adjustspace_dim {#1}
+  \thesissetup{adjustspace={#1}}
 }
 
 \ExplSyntaxOff
@@ -596,7 +593,7 @@
 \ExplSyntaxOff
 
 % ------------------------------------------------
-%謝辞
+% 謝辞
 % ------------------------------------------------
 \ExplSyntaxOn
 
@@ -834,8 +831,6 @@
   \end{oldappendices}
 }
 
-\ExplSyntaxOff
-
 \renewcommand{\@redotocentry@pp}[1]{%
 
   \cs_set_eq:NN
@@ -859,6 +854,8 @@
     \fi
   }
 }
+
+\ExplSyntaxOff
 
 % cleveref assigns appendix/subappendix types via \appendix; keep the
 % main-text chapter/section formats unchanged for references from appendices.
