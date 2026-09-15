@@ -244,8 +244,6 @@
 \tl_new:N \g__sdsthesis_eaffiliation_tl
 \tl_new:N \g__sdsthesis_edate_tl
 
-\dim_new:N \g__sdsthesis_adjustspace_dim
-
 % 表紙用変数の一括設定
 \keys_define:nn { sdsthesis / metadata }{
   type .tl_gset:N = \g__sdsthesis_type_tl,
@@ -257,9 +255,6 @@
   eauthor .tl_gset:N = \g__sdsthesis_eauthor_tl,
   eaffiliation .tl_gset:N = \g__sdsthesis_eaffiliation_tl,
   edate .tl_gset:N = \g__sdsthesis_edate_tl,
-  adjustspace .code:n = {
-    \dim_gset:Nn \g__sdsthesis_adjustspace_dim {#1}
-  },
 }
 
 \NewDocumentCommand{\thesissetup}{m}{
@@ -290,55 +285,31 @@
   \thesissetup{edate={#1}}
 }
 
-\NewDocumentCommand{\adjustspace}{m}{
-  \thesissetup{adjustspace={#1}}
+% スペース調整用のローカル変数
+\dim_new:N \l__sdsthesis_type_to_title_sep_dim
+\dim_new:N \l__sdsthesis_title_to_author_sep_dim
+\dim_new:N \l__sdsthesis_author_to_affiliation_sep_dim
+\dim_new:N \l__sdsthesis_affiliation_to_date_sep_dim
+\dim_new:N \l__sdsthesis_before_logo_sep_dim
+
+\bool_if:NTF \l__sdsthesis_english_bool{
+  \dim_set:Nn \l__sdsthesis_type_to_title_sep_dim {22pt}
+  \dim_set:Nn \l__sdsthesis_title_to_author_sep_dim {44pt}
+  \dim_set:Nn \l__sdsthesis_author_to_affiliation_sep_dim {11pt}
+  \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {22pt}
+}{
+  \dim_set:Nn \l__sdsthesis_type_to_title_sep_dim {44pt}
+  \dim_set:Nn \l__sdsthesis_title_to_author_sep_dim {154pt}
+  \dim_set:Nn \l__sdsthesis_author_to_affiliation_sep_dim {22pt}
+  \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {44pt}
 }
 
-\ExplSyntaxOff
+\bool_if:NTF \l__sdsthesis_nologo_bool{
+  \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {0pt}
+}{
+  \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {22pt}
+}
 
-\ExplSyntaxOn
-  \dim_new:N \l__sdsthesis_type_to_title_sep_dim
-  \dim_new:N \l__sdsthesis_title_to_author_sep_dim
-  \dim_new:N \l__sdsthesis_author_to_affiliation_sep_dim
-  \dim_new:N \l__sdsthesis_affiliation_to_date_sep_dim
-  \dim_new:N \l__sdsthesis_before_logo_sep_dim
-
-  \bool_if:NTF \l__sdsthesis_english_bool{
-    \dim_set:Nn \l__sdsthesis_type_to_title_sep_dim {22pt}
-    \dim_set:Nn \l__sdsthesis_title_to_author_sep_dim {44pt}
-    \dim_set:Nn \l__sdsthesis_author_to_affiliation_sep_dim {11pt}
-    \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {22pt}
-  }{
-    \dim_set:Nn \l__sdsthesis_type_to_title_sep_dim {88pt}
-    \dim_set:Nn \l__sdsthesis_title_to_author_sep_dim {154pt}
-    \dim_set:Nn \l__sdsthesis_author_to_affiliation_sep_dim {22pt}
-    \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {44pt}
-  }
-
-  \bool_if:NTF \l__sdsthesis_nologo_bool{
-    \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {0pt}
-  }{
-    \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {22pt}
-  }
-
-  \dim_new:N \l__sdsthesis_content_height_dim 
-  \dim_set:Nn \l__sdsthesis_content_height_dim {
-    132pt
-    + \l__sdsthesis_type_to_title_sep_dim
-    + \l__sdsthesis_title_to_author_sep_dim
-    + \l__sdsthesis_author_to_affiliation_sep_dim
-    + \l__sdsthesis_affiliation_to_date_sep_dim
-    + \l__sdsthesis_before_logo_sep_dim
-  }
-
-  \bool_if:NT \l__sdsthesis_english_bool{
-    \dim_set:Nn \l__sdsthesis_content_height_dim {2 \l__sdsthesis_content_height_dim}
-  }
-
-  \dim_new:N \l__sdsthesis_title_page_top_sep_dim
-  \dim_set:Nn \l__sdsthesis_title_page_top_sep_dim { 
-    (\c__sdsthesis_text_height_dim - \l__sdsthesis_content_height_dim) / 2
-  }
 \ExplSyntaxOff
 
 % 表紙に使うレイアウトの定義
@@ -383,77 +354,78 @@
 
 % 表紙コマンドの定義
 \ExplSyntaxOn
-\cs_new_protected:Npn \__sdsthesis_make_title: {
-  % 日本語タイトル
-  \vspace*{\dim_use:N \l__sdsthesis_title_page_top_sep_dim}
+
+% 日本語用の表紙コマンド
+\cs_new_protected:Npn \__sdsthesis_make_jp_title: {
   {
     \bfseries\sffamily\Large
     \tl_use:N \g__sdsthesis_type_tl
   }
-  \\
+  \par
 
   \vspace*{\dim_use:N \l__sdsthesis_type_to_title_sep_dim}
   {
     \bfseries\sffamily\LARGE
     \@title
   }
-  \\
+  \par
 
   \vspace*{\dim_use:N \l__sdsthesis_title_to_author_sep_dim}
   {
     \Large
     \@author
   }
-  \\
+  \par
   
   \vspace*{\dim_use:N \l__sdsthesis_author_to_affiliation_sep_dim}
   {
     \Large
     {\tl_use:N \g__sdsthesis_affiliation_tl}
   }
-  \\
+  \par
 
   \vspace*{\dim_use:N \l__sdsthesis_affiliation_to_date_sep_dim}
   {
     \Large
     \@date
   }
-  \\
+  \par
+}
 
-  % 英語タイトル
+% 英語用の表紙コマンド
+\cs_new_protected:Npn \__sdsthesis_make_en_title: {
   \bool_if:NT \l__sdsthesis_english_bool{
-    \vspace*{\dim_use:N \g__sdsthesis_adjustspace_dim}
     {
       \rmfamily\LARGE
       \tl_use:N \g__sdsthesis_etitle_tl
     }
-    \\
+    \par
 
     \vspace*{\dim_use:N \l__sdsthesis_title_to_author_sep_dim}
     {
       \Large
       \tl_use:N \g__sdsthesis_eauthor_tl
     }
-    \\
+    \par
 
     \vspace*{\dim_use:N \l__sdsthesis_author_to_affiliation_sep_dim}
     {
       \Large
       \tl_use:N \g__sdsthesis_eaffiliation_tl
     }
-    \\
+    \par
 
     \vspace*{\dim_use:N \l__sdsthesis_affiliation_to_date_sep_dim}
     {
       \Large
       \tl_use:N \g__sdsthesis_edate_tl
     }
-    \\
+    \par
   }
+}
 
-  % ロゴの表示
-  \vspace*{\dim_use:N \l__sdsthesis_before_logo_sep_dim}
-
+% ロゴの表示
+\cs_new_protected:Npn \__sdsthesis_make_logo: {
   \bool_if:NF \l__sdsthesis_nologo_bool {
     \hspace{5truemm}
     \includegraphics[height=18truemm]{logo.pdf}
@@ -461,6 +433,38 @@
     \raisebox{1truemm}{\includegraphics[height=16truemm]{sds.pdf}}
   }
 }
+
+% 調整スペースの大きさ
+\skip_const:Nn \c__sdsthesis_language_sep_skip
+  { 80pt minus 60pt }
+
+% 表紙コマンド
+\cs_new_protected:Npn \__sdsthesis_make_title: 
+  {
+    \vbox to \textheight
+      {
+        \centering
+
+        \vfil
+
+        \__sdsthesis_make_jp_title:
+
+        \bool_if:NT \l__sdsthesis_english_bool
+          {
+            \vskip \c__sdsthesis_language_sep_skip
+            \__sdsthesis_make_en_title:
+          }
+
+        \bool_if:NF \l__sdsthesis_nologo_bool
+          {
+            \vspace{\l__sdsthesis_before_logo_sep_dim}
+            \__sdsthesis_make_logo:
+          }
+
+        \vfil
+      }
+  }
+
 \ExplSyntaxOff
 
 % hyperxmp (pdfaオプション)は\begin{document}の時点で著者情報を確定するため、
@@ -478,10 +482,7 @@
   \thispagestyle{empty}
   \fancypage{\coverpagebox}{}
 
-  \begin{center}
-    \__sdsthesis_make_title:
-    \vfill
-  \end{center}
+  \__sdsthesis_make_title:
 	
   \newpage
 	\fancypage{}{}
