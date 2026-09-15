@@ -563,6 +563,7 @@
 
 %ヘッダ記述。 ~ で章・節番号とそのタイトルの間のスペースを調整
 \ExplSyntaxOn
+
 \bool_if:NF \l__sdsthesis_english_bool {
   \RenewDocumentCommand{\chaptermark}{m}{\markboth{第\,\thechapter\,章\quad #1}{}}
   \RenewDocumentCommand{\sectionmark}{m}{\markright{\thesection\quad #1}{}}
@@ -570,14 +571,8 @@
     \RenewDocumentCommand{\chaptermark}{m}{\markboth{付録\,\thechapter\quad #1}{}}
   }
 }
-\ExplSyntaxOff
 
-% plainスタイルを再定義してheaderが章の最初の出ないようにする
-% https://tex.stackexchange.com/questions/117328/fancyhdr-does-not-apply-same-header-footer-on-chapter-and-non-chapter-pages
-\fancypagestyle{plain}{%
-  \fancyhead{}%
-  \renewcommand{\headrulewidth}{0pt}% Line at the header invisible
-}
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 %謝辞
@@ -699,8 +694,8 @@
 % ------------------------------------------------------------------------------
 % リンクの設定
 % ------------------------------------------------------------------------------
-\definecolor{LinkColor}{rgb}{0.2,0.5,1.0}
 \ExplSyntaxOn
+
 \cs_new_protected:Npn \__sdsthesis_load_hyperref: {
   % PDF/A用のメタデータはpdfaオプションを指定したときのみ埋め込む
   \bool_if:NTF \l__sdsthesis_pdfa_bool {
@@ -790,9 +785,6 @@
 
   \RequirePackage[noabbrev,capitalize]{cleveref}
 
-  \renewcommand{\thesection}{\thechapter.\arabic{section}}
-  \renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}}
-
   \__sdsthesis_setup_theorems:
   \__sdsthesis_setup_cref:
 }
@@ -824,18 +816,25 @@
 \ExplSyntaxOff
 
 \renewcommand{\@redotocentry@pp}[1]{%
-  \NewCommandCopy\oldacl@pp\addcontentsline
+
+  \cs_set_eq:NN
+    \__sdsthesis_saved_addcontentsline:nnn
+    \addcontentsline
+
   \def\addcontentsline##1##2##3{%
     \def\@pptempa{##1}\def\@pptempb{toc}%
     \ifx\@pptempa\@pptempb
       \def\@pptempa{##2}\def\@pptempb{#1}%
       \ifx\@pptempa\@pptempb
-        \oldacl@pp{##1}{##2}{\@appendixname\space ##3}%
+        \__sdsthesis_saved_addcontentsline:nnn
+          {##1}{##2}{\@appendixname\space ##3}
       \else
-        \oldacl@pp{##1}{##2}{\chaptertitlename\space ##3}% added \chaptertitlename
+        \__sdsthesis_saved_addcontentsline:nnn
+          {##1}{##2}{\chaptertitlename\space ##3}
       \fi
     \else
-      \oldacl@pp{##1}{##2}{##3}%
+      \__sdsthesis_saved_addcontentsline:nnn
+        {##1}{##2}{##3}
     \fi
   }
 }
