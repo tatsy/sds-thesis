@@ -49,7 +49,7 @@ jobs:
 
       - name: Upload PDF artifact
         if: matrix.engine == 'lualatex'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: pdf-artifact
           path: |
@@ -63,12 +63,12 @@ jobs:
 
     steps:
       - name: Download PDF artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: pdf-artifact
 
       - name: Deploy to GitHub Releases
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             main_ja.pdf
