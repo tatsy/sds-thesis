@@ -1,48 +1,48 @@
 % sdsthesis.sty
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{sdsthesis}[Aug. 20th, 2024, Tatsuya Yatagawa]
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
+\ProvidesPackage{sdsthesis}[2026-09-15 SDS thesis style]
 
 % ------------------------------------------------------------------------------
 % スタイルファイルオプションの設定
 % ------------------------------------------------------------------------------
 \RequirePackage{iftex}
 \RequirePackage{ifthen}
-\RequirePackage{xparse}
 \RequirePackage{letltxmacro}
 \RequirePackage{etoolbox}
-\RequirePackage{expl3}
-\RequirePackage{l3keys2e}
 
 \ExplSyntaxOn
   % 言語設定のオプション
-  \bool_new:N \l_thesis_english_bool
-  \bool_gset_false:N \l_thesis_english_bool
+  \bool_new:N \l__sdsthesis_english_bool
 
   % ロゴの表示のオプション
-  \bool_new:N \l_thesis_nologo_bool
-  \bool_gset_false:N \l_thesis_nologo_bool
+  \bool_new:N \l__sdsthesis_nologo_bool
 
   % 句読点のオプション (comma: 「，」「．」に統一, kuten: 「、」「。」に統一)
-  \tl_new:N \l_thesis_punctuation_tl
-  \tl_set:Nn \l_thesis_punctuation_tl {comma}
+  \tl_new:N \l__sdsthesis_punctuation_tl
+  \tl_set:Nn \l__sdsthesis_punctuation_tl {comma}
 
   % PDF/Aのメタデータを埋め込むオプション (既定は無効)
-  \bool_new:N \l_thesis_pdfa_bool
-  \bool_set_false:N \l_thesis_pdfa_bool
+  \bool_new:N \l__sdsthesis_pdfa_bool
 
   % オプションの処理
   \keys_define:nn {sdsthesis}{
-    english .bool_set:N = \l_thesis_english_bool,
-    nologo .bool_set:N = \l_thesis_nologo_bool,
-    pdfa .bool_set:N = \l_thesis_pdfa_bool,
-    punctuation .choices:nn = {comma, kuten}
-      { \tl_set_eq:NN \l_thesis_punctuation_tl \l_keys_choice_tl },
+    english .bool_set:N = \l__sdsthesis_english_bool,
+    nologo .bool_set:N = \l__sdsthesis_nologo_bool,
+    pdfa .bool_set:N = \l__sdsthesis_pdfa_bool,
+    punctuation .choices:nn =
+      {comma, kuten}
+      { 
+        \tl_set:NV
+          \l__sdsthesis_punctuation_tl
+          \l_keys_choice_tl
+      },
+    punctuation .initial:n = comma,
     punctuation .value_required:n = true,
     unknown .code:n = {
       \PackageWarning{sdsthesis}{Unknown option `\CurrentOption' ignored}
     },
   }
-  \ProcessKeysOptions{sdsthesis}
+  \ProcessKeyOptions[ sdsthesis ]
 
   % LuaTeXかXeTeXのみをサポート
   \sys_if_engine_luatex:F
@@ -69,35 +69,31 @@
 \RequirePackage{emptypage}
 \RequirePackage{xspace}
 \RequirePackage[title]{appendix}
-
-\ifluatex
-  \RequirePackage[luatex]{graphicx}
-\fi
-
-\ifxetex
-  \RequirePackage[xetex]{graphicx}
-\fi
+\RequirePackage{graphicx}
 
 % ------------------------------------------------------------------------------
 % フォントの設定
 % ------------------------------------------------------------------------------
 
-% LuaTeX用の設定
-\ifluatex
-  \RequirePackage[no-math]{luatexja}
-  \RequirePackage[haranoaji]{luatexja-preset}
-\fi
-
-% XeTeX用の設定
-\ifxetex
-  \RequirePackage{fontspec}
-  \RequirePackage{zxjatype}
-  \RequirePackage[haranoaji]{zxjafont}
-  \newlength{\zw}
-  \setlength{\zw}{1em}
-  \newlength{\zh}
-  \setlength{\zh}{1.1\zw}
-\fi
+% LuaTeX/XeTeX用の設定
+\ExplSyntaxOn
+\sys_if_engine_luatex:TF
+  {
+    % LuaTeX
+    \RequirePackage[no-math]{luatexja}
+    \RequirePackage[haranoaji]{luatexja-preset}
+  }
+  {
+    % XeTeX
+    \RequirePackage{fontspec}
+    \RequirePackage{zxjatype}
+    \RequirePackage[haranoaji]{zxjafont}
+    \newlength{\zw}
+    \setlength{\zw}{1em}
+    \newlength{\zh}
+    \setlength{\zh}{1.1\zw}
+  }
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 英文・数式フォントの設定
@@ -126,7 +122,7 @@
 % ------------------------------------------------------------------------------
 \RequirePackage{newunicodechar}
 \ExplSyntaxOn
-\str_if_eq:VnTF \l_thesis_punctuation_tl {kuten}{
+\str_if_eq:VnTF \l__sdsthesis_punctuation_tl {kuten}{
   % 「、」「。」に統一する
   \newunicodechar{，}{、}
   \newunicodechar{．}{。}
@@ -157,23 +153,15 @@
 \RequirePackage{geometry}
 \ExplSyntaxOn
   % ページの幅と高さ
-  \dim_new:N \l_page_width_dim
-  \dim_set:Nn \l_page_width_dim {210mm}
-  \dim_new:N \l_page_height_dim
-  \dim_set:Nn \l_page_height_dim {297mm}
-  \dim_new:N \l_text_width_dim
-  \dim_set:Nn \l_text_width_dim {160mm}
-  \dim_new:N \l_text_height_dim
-  \dim_set:Nn \l_text_height_dim {224mm}
-  \dim_new:N \l_left_margin_dim
-  \dim_set:Nn \l_left_margin_dim {24mm}
-  \dim_new:N \l_head_height_dim
-  \dim_set:Nn \l_head_height_dim {5mm}
+  \dim_const:Nn \c__sdsthesis_text_width_dim {160mm}
+  \dim_const:Nn \c__sdsthesis_text_height_dim {224mm}
+  \dim_const:Nn \c__sdsthesis_left_margin_dim {24mm}
+  \dim_const:Nn \c__sdsthesis_head_height_dim {5mm}
   \geometry{
-    textwidth={\dim_use:N \l_text_width_dim},
-    textheight={\dim_use:N \l_text_height_dim},
-    left={\dim_use:N \l_left_margin_dim},
-    headheight={\dim_use:N \l_head_height_dim},
+    textwidth={\dim_use:N \c__sdsthesis_text_width_dim},
+    textheight={\dim_use:N \c__sdsthesis_text_height_dim},
+    left={\dim_use:N \c__sdsthesis_left_margin_dim},
+    headheight={\dim_use:N \c__sdsthesis_head_height_dim},
   }
 \ExplSyntaxOff
 
@@ -184,8 +172,7 @@
 % 各種サイズ
 % ------------------------------------------------------------------------------
 \ExplSyntaxOn
-\bool_if:nTF {\l_thesis_english_bool}{
-}{
+\bool_if:NF \l__sdsthesis_english_bool {
   \RequirePackage{indentfirst}
   \setlength{\parindent}{1\zw}
   \renewcommand{\baselinestretch}{1.2}
@@ -196,7 +183,7 @@
 % 章，節などの設定
 % ------------------------------------------------------------------------------
 \ExplSyntaxOn
-\bool_if:NTF {\l_thesis_english_bool}{
+\bool_if:NTF \l__sdsthesis_english_bool{
   \titleformat{\chapter}[display]{\LARGE\sffamily\bfseries}{Chapter~\thechapter}{0pt}{}
 }{
   \titleformat{\chapter}[display]{\LARGE\sffamily\bfseries}{第\,\thechapter\,章}{0pt}{}
@@ -216,22 +203,23 @@
 % 日本語表記
 % ------------------------------------------------------------------------------
 \ExplSyntaxOn
-\tl_new:N \l_abstract_name_tl
-\tl_new:N \l_chapabst_name_tl
-\tl_new:N \l_ack_name_tl
-\tl_new:N \l_appendix_name_tl
 
-\bool_if:nTF {\l_thesis_english_bool}{
-  \tl_set:Nn \l_abstract_name_tl {Abstract}
-  \tl_set:Nn \l_chapabst_name_tl {Chapter summary}
-  \tl_set:Nn \l_ack_name_tl {Acknowledgment}
-  \tl_set:Nn \l_appendix_name_tl {Appendix}
+\tl_new:N \l__sdsthesis_abstract_name_tl
+\tl_new:N \l__sdsthesis_chapabst_name_tl
+\tl_new:N \l__sdsthesis_ack_name_tl
+\tl_new:N \l__sdsthesis_appendix_name_tl
+
+\bool_if:NTF \l__sdsthesis_english_bool{
+  \tl_set:Nn \l__sdsthesis_abstract_name_tl {Abstract}
+  \tl_set:Nn \l__sdsthesis_chapabst_name_tl {Chapter~summary}
+  \tl_set:Nn \l__sdsthesis_ack_name_tl {Acknowledgment}
+  \tl_set:Nn \l__sdsthesis_appendix_name_tl {Appendix}
   \newcommand{\biblioname}{References}
 }{
-  \tl_set:Nn \l_abstract_name_tl {概要}
-  \tl_set:Nn \l_chapabst_name_tl {本章の概要}
-  \tl_set:Nn \l_ack_name_tl {謝辞}
-  \tl_set:Nn \l_appendix_name_tl {付録}
+  \tl_set:Nn \l__sdsthesis_abstract_name_tl {概要}
+  \tl_set:Nn \l__sdsthesis_chapabst_name_tl {本章の概要}
+  \tl_set:Nn \l__sdsthesis_ack_name_tl {謝辞}
+  \tl_set:Nn \l__sdsthesis_appendix_name_tl {付録}
   \newcommand{\biblioname}{参考文献}
 
   \RenewDocumentCommand{\figurename}{}{図}
@@ -248,84 +236,91 @@
 % ------------------------------------------------------------------------------
 
 % 表紙用の新変数
-\def\thesistype#1{\gdef\@thesistype{#1}}
-\def\title#1{\gdef\@title{#1}}
-\def\etitle#1{\gdef\@etitle{#1}}
-\def\author#1{\gdef\@author{#1}}
-\def\eauthor#1{\gdef\@eauthor{#1}}
-\def\affiliation#1{\gdef\@affiliation{#1}}
-\def\eaffiliation#1{\gdef\@eaffiliation{#1}}
-\def\edate#1{\gdef\@edate{#1}}
-
 \ExplSyntaxOn
-  \tl_new:N \g_thesis_type_tl
-  \tl_new:N \g_thesis_title_tl
-  \tl_new:N \g_thesis_author_tl
-  \tl_new:N \g_thesis_etitle_tl
-  \tl_new:N \g_thesis_eauthor_tl
-  \tl_new:N \g_thesis_affiliation_tl
-  \tl_new:N \g_thesis_eaffiliation_tl
-  \tl_new:N \g_thesis_date_tl
-  \tl_new:N \g_thesis_edate_tl
-  \dim_new:N \g_thesis_adjustspace_dim
 
-  \tl_gset:Nn \g_thesis_type_tl {\@thesistype}
-  \tl_gset:Nn \g_thesis_title_tl {\@title}
-  \tl_gset:Nn \g_thesis_author_tl {\@author}
-  \tl_gset:Nn \g_thesis_etitle_tl {\@etitle}
-  \tl_gset:Nn \g_thesis_eauthor_tl {\@eauthor}
-  \tl_gset:Nn \g_thesis_affiliation_tl {\@affiliation}
-  \tl_gset:Nn \g_thesis_eaffiliation_tl {\@eaffiliation}
-  \tl_gset:Nn \g_thesis_date_tl {\@date}
-  \tl_gset:Nn \g_thesis_edate_tl {\@edate}
-  \NewDocumentCommand{\adjustspace}{m}{
-    \dim_gset:Nn \g_thesis_adjustspace_dim {#1}
-  }
+\tl_new:N \g__sdsthesis_type_tl
+\tl_new:N \g__sdsthesis_etitle_tl
+\tl_new:N \g__sdsthesis_eauthor_tl
+\tl_new:N \g__sdsthesis_affiliation_tl
+\tl_new:N \g__sdsthesis_eaffiliation_tl
+\tl_new:N \g__sdsthesis_edate_tl
+
+\dim_new:N \g__sdsthesis_adjustspace_dim
+
+\NewDocumentCommand{\thesistype}{m}{
+  \tl_gset:Nn \g__sdsthesis_type_tl {#1}
+}
+
+\NewDocumentCommand{\etitle}{m}{
+  \tl_gset:Nn \g__sdsthesis_etitle_tl {#1}
+}
+
+\NewDocumentCommand{\eauthor}{m}{
+  \tl_gset:Nn \g__sdsthesis_eauthor_tl {#1}
+}
+
+\NewDocumentCommand{\affiliation}{m}{
+  \tl_gset:Nn \g__sdsthesis_affiliation_tl {#1}
+}
+
+\NewDocumentCommand{\eaffiliation}{m}{
+  \tl_gset:Nn \g__sdsthesis_eaffiliation_tl {#1}
+}
+
+\NewDocumentCommand{\edate}{m}{
+  \tl_gset:Nn \g__sdsthesis_edate_tl {#1}
+}
+
+\NewDocumentCommand{\adjustspace}{m}{
+  \dim_gset:Nn \g__sdsthesis_adjustspace_dim {#1}
+}
+
 \ExplSyntaxOff
 
 \ExplSyntaxOn
-  \dim_new:N \l_type_to_title_sep_dim
-  \dim_new:N \l_title_to_author_sep_dim
-  \dim_new:N \l_author_to_affiliation_sep_dim
-  \dim_new:N \l_affiliation_to_date_sep_dim
-  \dim_new:N \l_before_logo_sep_dim
+  \dim_new:N \l__sdsthesis_type_to_title_sep_dim
+  \dim_new:N \l__sdsthesis_title_to_author_sep_dim
+  \dim_new:N \l__sdsthesis_author_to_affiliation_sep_dim
+  \dim_new:N \l__sdsthesis_affiliation_to_date_sep_dim
+  \dim_new:N \l__sdsthesis_before_logo_sep_dim
 
-  \bool_if:nTF {\l_thesis_english_bool}{
-    \dim_set:Nn \l_type_to_title_sep_dim {22pt}
-    \dim_set:Nn \l_title_to_author_sep_dim {44pt}
-    \dim_set:Nn \l_author_to_affiliation_sep_dim {11pt}
-    \dim_set:Nn \l_affiliation_to_date_sep_dim {22pt}
+  \bool_if:NTF \l__sdsthesis_english_bool{
+    \dim_set:Nn \l__sdsthesis_type_to_title_sep_dim {22pt}
+    \dim_set:Nn \l__sdsthesis_title_to_author_sep_dim {44pt}
+    \dim_set:Nn \l__sdsthesis_author_to_affiliation_sep_dim {11pt}
+    \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {22pt}
   }{
-    \dim_set:Nn \l_type_to_title_sep_dim {88pt}
-    \dim_set:Nn \l_title_to_author_sep_dim {154pt}
-    \dim_set:Nn \l_author_to_affiliation_sep_dim {22pt}
-    \dim_set:Nn \l_affiliation_to_date_sep_dim {44pt}
+    \dim_set:Nn \l__sdsthesis_type_to_title_sep_dim {88pt}
+    \dim_set:Nn \l__sdsthesis_title_to_author_sep_dim {154pt}
+    \dim_set:Nn \l__sdsthesis_author_to_affiliation_sep_dim {22pt}
+    \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {44pt}
   }
 
-  \bool_if:nTF {\l_thesis_nologo_bool}{
-    \dim_set:Nn \l_before_logo_sep_dim {0pt}
+  \bool_if:NTF \l__sdsthesis_nologo_bool{
+    \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {0pt}
   }{
-    \dim_set:Nn \l_before_logo_sep_dim {22pt}
+    \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {22pt}
   }
 
-  \dim_new:N \l_content_height_dim
-  \dim_set:Nn \l_content_height_dim {
+  \dim_const:Nn \c__sdsthesis_content_height_dim {
     132pt
-    + \l_type_to_title_sep_dim
-    + \l_title_to_author_sep_dim
-    + \l_author_to_affiliation_sep_dim
-    + \l_affiliation_to_date_sep_dim
-    + \l_before_logo_sep_dim
+    + \l__sdsthesis_type_to_title_sep_dim
+    + \l__sdsthesis_title_to_author_sep_dim
+    + \l__sdsthesis_author_to_affiliation_sep_dim
+    + \l__sdsthesis_affiliation_to_date_sep_dim
+    + \l__sdsthesis_before_logo_sep_dim
   }
 
-  \bool_if:nTF {\l_thesis_english_bool}{
-    \dim_set:Nn \l_content_height_dim {2 \l_content_height_dim}
+  \bool_if:NTF \l__sdsthesis_english_bool{
+    \dim_set:Nn \c__sdsthesis_content_height_dim {2 \c__sdsthesis_content_height_dim}
   }{
-    \dim_set:Nn \l_content_height_dim {\l_content_height_dim}
+    \dim_set:Nn \c__sdsthesis_content_height_dim {\c__sdsthesis_content_height_dim}
   }
 
   \dim_new:N \l_title_page_top_sep_dim
-  \dim_set:Nn \l_title_page_top_sep_dim { (\l_text_height_dim - \l_content_height_dim) / 2 }
+  \dim_set:Nn \l_title_page_top_sep_dim { 
+    (\c__sdsthesis_text_height_dim - \c__sdsthesis_content_height_dim) / 2
+  }
 \ExplSyntaxOff
 
 % 表紙に使うレイアウトの定義
@@ -344,56 +339,104 @@
 
 % PDFのメタデータ (題目・著者)を表紙の情報から設定
 \ExplSyntaxOn
-\cs_new_protected:Npn \thesis_set_pdf_metadata: {
-  % 表紙の情報がまだ設定されていなければ何もしない
-  \cs_if_exist:NT \@thesistype {
-    \thesis_set_pdf_metadata_aux:
+\cs_new_protected:Npn
+  \__sdsthesis_set_pdf_metadata:
+  {
+    \bool_if:NTF
+      \l__sdsthesis_english_bool
+      {
+        \hypersetup
+          {
+            pdftitle =
+              { \tl_use:N \g__sdsthesis_etitle_tl },
+            pdfauthor =
+              { \tl_use:N \g__sdsthesis_eauthor_tl },
+          }
+      }
+      {
+        \hypersetup
+          {
+            pdftitle = { \@title },
+            pdfauthor = { \@author },
+          }
+      }
   }
-}
-\cs_new_protected:Npn \thesis_set_pdf_metadata_aux: {
-  \bool_if:NTF \l_thesis_english_bool {
-    \hypersetup{
-      pdftitle = {\tl_use:N \g_thesis_etitle_tl},
-      pdfauthor = {\tl_use:N \g_thesis_eauthor_tl},
-    }
-  }{
-    \hypersetup{
-      pdftitle = {\tl_use:N \g_thesis_title_tl},
-      pdfauthor = {\tl_use:N \g_thesis_author_tl},
-    }
-  }
-}
 \ExplSyntaxOff
 
 % 表紙コマンドの定義
 \ExplSyntaxOn
-\cs_new_protected:Npn \thesis_make_title: {
+\cs_new_protected:Npn \__sdsthesis_make_title: {
   % 日本語タイトル
   \vspace*{\dim_use:N \l_title_page_top_sep_dim}
-  {\bfseries\sffamily\Large {\tl_use:N \g_thesis_type_tl}}\\
-  \vspace*{\dim_use:N \l_type_to_title_sep_dim}
-  {\bfseries\sffamily\LARGE {\tl_use:N \g_thesis_title_tl}}\\
-  \vspace*{\dim_use:N \l_title_to_author_sep_dim}
-  {\Large	{\tl_use:N \g_thesis_author_tl}} \\
-  \vspace*{\dim_use:N \l_author_to_affiliation_sep_dim}
-  {\Large {\tl_use:N \g_thesis_affiliation_tl}}\\
-  \vspace*{\dim_use:N \l_affiliation_to_date_sep_dim}
-  {\Large {\tl_use:N \g_thesis_date_tl}} \\
+  {
+    \bfseries\sffamily\Large
+    \tl_use:N \g__sdsthesis_type_tl
+  }
+  \\
+
+  \vspace*{\dim_use:N \l__sdsthesis_type_to_title_sep_dim}
+  {
+    \bfseries\sffamily\LARGE
+    \@title
+  }
+  \\
+
+  \vspace*{\dim_use:N \l__sdsthesis_title_to_author_sep_dim}
+  {
+    \Large
+    \@author
+  }
+  \\
+  
+  \vspace*{\dim_use:N \l__sdsthesis_author_to_affiliation_sep_dim}
+  {
+    \Large
+    {\tl_use:N \g__sdsthesis_affiliation_tl}
+  }
+  \\
+
+  \vspace*{\dim_use:N \l__sdsthesis_affiliation_to_date_sep_dim}
+  {
+    \Large
+    \@date
+  }
+  \\
+
   % 英語タイトル
-  \bool_if:NTF {\l_thesis_english_bool}{
-    \vspace*{\dim_use:N \g_thesis_adjustspace_dim}
-    {\rmfamily\LARGE {\tl_use:N \g_thesis_etitle_tl}}\\
-    \vspace*{\dim_use:N \l_title_to_author_sep_dim}
-    {\Large	{\tl_use:N \g_thesis_eauthor_tl}} \\
-    \vspace*{\dim_use:N \l_author_to_affiliation_sep_dim}
-    {\Large {\tl_use:N \g_thesis_eaffiliation_tl}}\\
-    \vspace*{\dim_use:N \l_affiliation_to_date_sep_dim}
-    {\Large {\tl_use:N \g_thesis_edate_tl}} \\
-  }{}
+  \bool_if:NT \l__sdsthesis_english_bool{
+    \vspace*{\dim_use:N \g__sdsthesis_adjustspace_dim}
+    {
+      \rmfamily\LARGE
+      \tl_use:N \g__sdsthesis_etitle_tl
+    }
+    \\
+
+    \vspace*{\dim_use:N \l__sdsthesis_title_to_author_sep_dim}
+    {
+      \Large
+      \tl_use:N \g__sdsthesis_eauthor_tl
+    }
+    \\
+
+    \vspace*{\dim_use:N \l__sdsthesis_author_to_affiliation_sep_dim}
+    {
+      \Large
+      \tl_use:N \g__sdsthesis_eaffiliation_tl
+    }
+    \\
+
+    \vspace*{\dim_use:N \l__sdsthesis_affiliation_to_date_sep_dim}
+    {
+      \Large
+      \tl_use:N \g__sdsthesis_edate_tl
+    }
+    \\
+  }
+
   % ロゴの表示
-  \vspace*{\dim_use:N \l_before_logo_sep_dim}
-  \bool_if:NTF {\l_thesis_nologo_bool}{
-  }{
+  \vspace*{\dim_use:N \l__sdsthesis_before_logo_sep_dim}
+
+  \bool_if:NF \l__sdsthesis_nologo_bool {
     \hspace{5truemm}
     \includegraphics[height=18truemm]{logo.pdf}
     \hspace{5truemm}
@@ -405,19 +448,29 @@
 % hyperxmp (pdfaオプション)は\begin{document}の時点で著者情報を確定するため、
 % プリアンブルで表紙の情報が与えられていれば文書の開始時にメタデータを設定し、
 % \maketitleでも改めて設定する。
-\AtBeginDocument{{\expandafter\csname thesis_set_pdf_metadata:\endcsname}}
-\renewcommand{\maketitle}{
-  {\expandafter\csname thesis_set_pdf_metadata:\endcsname}
-	\thispagestyle{empty}
+\ExplSyntaxOn
+
+\AtBeginDocument{
+  \__sdsthesis_set_pdf_metadata:
+}
+
+\RenewDocumentCommand{\maketitle}{}{
+  \__sdsthesis_set_pdf_metadata:
+
+  \thispagestyle{empty}
   \fancypage{\coverpagebox}{}
+
   \begin{center}
-  {\expandafter\csname thesis_make_title:\endcsname}
-  \vfill
+    \__sdsthesis_make_title:
+    \vfill
   \end{center}
-	\newpage
+	
+  \newpage
 	\fancypage{}{}
 	\cleardoublepage
 }
+
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 目次の設定
@@ -445,22 +498,23 @@
 % 論文全体の概要
 % ------------------------------------------------------------------------------
 \ExplSyntaxOn
-\cs_new_protected:Npn \thesis_setup_abstract_title: {
-  {\bfseries\sffamily\large {\tl_use:N \l_abstract_name_tl}}
+\cs_new_protected:Npn \__sdsthesis_setup_abstract_title: {
+  {\bfseries\sffamily\large {\tl_use:N \l__sdsthesis_abstract_name_tl}}
 }
-\ExplSyntaxOff
 
 \NewDocumentEnvironment{abstract}{}{%
   \thispagestyle{empty}
   \vspace*{40truemm}
   \begin{center}
-  {\expandafter\csname thesis_setup_abstract_title:\endcsname}
+    \__sdsthesis_setup_abstract_title:
   \end{center}
   \par
 }{%
   \par
   \clearpage
 }
+
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 各章の概要
@@ -482,7 +536,7 @@
   \dim_set:Nn \l_chapabst_below_skip_dim {5mm}
   \NewDocumentEnvironment{chapabst}{}{%
     \setlength\rightskip{1in}%
-    \begin{small}\noindent\textbf{\textsf{\tl_use:N \l_chapabst_name_tl :}}~
+    \begin{small}\noindent\textbf{\textsf{\tl_use:N \l__sdsthesis_chapabst_name_tl :}}~
   }{%
     \end{small}\vspace{\dim_use:N \l_chapabst_below_skip_dim}
   }
@@ -505,8 +559,7 @@
 
 %ヘッダ記述。 ~ で章・節番号とそのタイトルの間のスペースを調整
 \ExplSyntaxOn
-\bool_if:nTF {\l_thesis_english_bool}{
-}{
+\bool_if:NF \l__sdsthesis_english_bool {
   \RenewDocumentCommand{\chaptermark}{m}{\markboth{第\,\thechapter\,章\quad #1}{}}
   \RenewDocumentCommand{\sectionmark}{m}{\markright{\thesection\quad #1}{}}
   \AtBeginEnvironment{appendices}{%
@@ -552,15 +605,20 @@
 %謝辞
 % ------------------------------------------------------------------------------
 \ExplSyntaxOn
-\cs_new_protected:Npn \thesis_setup_acks: {
+
+\cs_new_protected:Npn \__sdsthesis_setup_acks: {
   \RenewDocumentCommand{\chaptermark}{m}{
-    \markboth{\tl_use:N \l_ack_name_tl}{}
+    \markboth{\tl_use:N \l__sdsthesis_ack_name_tl}{}
   }
-  \chapter*{\tl_use:N \l_ack_name_tl}
-  \addcontentsline{toc}{chapter}{\tl_use:N \l_ack_name_tl}
+  \chapter*{\tl_use:N \l__sdsthesis_ack_name_tl}
+  \addcontentsline{toc}{chapter}{\tl_use:N \l__sdsthesis_ack_name_tl}
 }
+
+\NewDocumentEnvironment{acks}{}{
+  \__sdsthesis_setup_acks:
+}{}
+
 \ExplSyntaxOff
-\NewDocumentEnvironment{acks}{}{\csname thesis_setup_acks:\endcsname}{}
 
 % ------------------------------------------------------------------------------
 % 目次の設定
@@ -620,7 +678,7 @@
 \RequirePackage{jvlisting}
 
 \ExplSyntaxOn
-  \bool_if:NTF {\l_thesis_english_bool}{
+  \bool_if:NTF \l__sdsthesis_english_bool {
     \RenewDocumentCommand{\lstlistingname}{}{Listing}
   }{
     \RenewDocumentCommand{\lstlistingname}{}{リスト}
@@ -665,28 +723,26 @@
 % ------------------------------------------------------------------------------
 \definecolor{LinkColor}{rgb}{0.2,0.5,1.0}
 \ExplSyntaxOn
-\cs_new_protected:Npn \thesis_load_hyperref: {
+\cs_new_protected:Npn \__sdsthesis_load_hyperref: {
   % PDF/A用のメタデータはpdfaオプションを指定したときのみ埋め込む
-  \bool_if:NTF \l_thesis_pdfa_bool {
-    \ifluatex \RequirePackage[luatex,pdfa=true]{hyperref} \fi
-    \ifxetex \RequirePackage[xetex,pdfa=true]{hyperref} \fi
+  \bool_if:NTF \l__sdsthesis_pdfa_bool {
+    \RequirePackage[pdfa=true]{hyperref}
     \RequirePackage{hyperxmp}
     \hypersetup{pdfapart=3, pdfaconformance=u}
   }{
-    \ifluatex \RequirePackage[luatex]{hyperref} \fi
-    \ifxetex \RequirePackage[xetex]{hyperref} \fi
+    \RequirePackage{hyperref}
   }
   % PDFのメタデータに文書の言語を設定
-  \bool_if:NTF \l_thesis_english_bool {
+  \bool_if:NTF \l__sdsthesis_english_bool {
     \hypersetup{pdflang=en}
   }{
     \hypersetup{pdflang=ja}
   }
 }
-\ExplSyntaxOff
 
 \AtEndPreamble{
-  \csname thesis_load_hyperref:\endcsname
+  \__sdsthesis_load_hyperref:
+
   \hypersetup{
     pdfencoding=auto,
     backref=true,
@@ -701,45 +757,46 @@
   }
 }
 
+\ExplSyntaxOff
+
 % ***** CleverRefの設定 *****
 \ExplSyntaxOn
-\cs_new_protected:Npn \cref_format_jp:nnn #1#2#3 {
+\cs_new_protected:Npn \__sdsthesis_cref_format_jp:nnn #1#2#3 {
   \crefformat{#1}{##2#2\,##1\,#3##3}%
   \crefrangeformat{#1}{##3#2\,##1\,#3##4から##5#2\,##2\,#3##6}%
   \crefmultiformat{#1}{##2#2\,##1\,#3##3}{ならびに##2#2\,##1\,#3##3}{、##2#2\,##1\,#3##3}{ならびに##2#2\,##1\,#3##3}
 }
 
-\cs_new_protected:Npn \thesis_setup_cref: {
-  \bool_if:NTF {\l_thesis_english_bool}{}{
-    \cref_format_jp:nnn{equation}{式}{}
-    \cref_format_jp:nnn{figure}{図}{}
-    \cref_format_jp:nnn{table}{表}{}
-    \cref_format_jp:nnn{algorithm}{アルゴリズム}{}
-    \cref_format_jp:nnn{chapter}{第}{章}
-    \cref_format_jp:nnn{section}{第}{節}
-    \cref_format_jp:nnn{subsection}{第}{項}
-    \cref_format_jp:nnn{appendix}{付録}{}
-    \cref_format_jp:nnn{subappendix}{付録}{}
-    \cref_format_jp:nnn{subsubappendix}{付録}{}
-    \cref_format_jp:nnn{subsubsubappendix}{付録}{}
-    \cref_format_jp:nnn{theorem}{定理}{}
-    \cref_format_jp:nnn{lemma}{補題}{}
-    \cref_format_jp:nnn{definition}{定義}{}
-    \cref_format_jp:nnn{proposition}{命題}{}
+\cs_new_protected:Npn \__sdsthesis_setup_cref: {
+  \bool_if:NF \l__sdsthesis_english_bool {
+    \__sdsthesis_cref_format_jp:nnn{equation}{式}{}
+    \__sdsthesis_cref_format_jp:nnn{figure}{図}{}
+    \__sdsthesis_cref_format_jp:nnn{table}{表}{}
+    \__sdsthesis_cref_format_jp:nnn{algorithm}{アルゴリズム}{}
+    \__sdsthesis_cref_format_jp:nnn{chapter}{第}{章}
+    \__sdsthesis_cref_format_jp:nnn{section}{第}{節}
+    \__sdsthesis_cref_format_jp:nnn{subsection}{第}{項}
+    \__sdsthesis_cref_format_jp:nnn{appendix}{付録}{}
+    \__sdsthesis_cref_format_jp:nnn{subappendix}{付録}{}
+    \__sdsthesis_cref_format_jp:nnn{subsubappendix}{付録}{}
+    \__sdsthesis_cref_format_jp:nnn{subsubsubappendix}{付録}{}
+    \__sdsthesis_cref_format_jp:nnn{theorem}{定理}{}
+    \__sdsthesis_cref_format_jp:nnn{lemma}{補題}{}
+    \__sdsthesis_cref_format_jp:nnn{definition}{定義}{}
+    \__sdsthesis_cref_format_jp:nnn{proposition}{命題}{}
 
     \newcommand{\crefpairconjunction}{ならびに}
     \newcommand{\crefrangeconjunction}{から}
     \newcommand{\crefmiddleconjunction}{、}
     \newcommand{\creflastconjunction}{、ならびに}
-
   }
 }
 \ExplSyntaxOff
 
 \ExplSyntaxOn
-\cs_new_protected:Npn \thesis_setup_theorems: {
+\cs_new_protected:Npn \__sdsthesis_setup_theorems: {
   \theoremstyle{definition}
-  \bool_if:NTF \l_thesis_english_bool {
+  \bool_if:NTF \l__sdsthesis_english_bool {
     \newtheorem{theorem}{Theorem}
     \newtheorem{lemma}{Lemma}
     \newtheorem*{proof*}{Proof}
@@ -753,7 +810,6 @@
     \newtheorem{proposition}{命題}
   }
 }
-\ExplSyntaxOff
 
 \AtEndPreamble{
   \usepackage[noabbrev,capitalize]{cleveref}
@@ -761,9 +817,11 @@
   \renewcommand{\thesection}{\thechapter.\arabic{section}}
   \renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}}
 
-  \csname thesis_setup_theorems:\endcsname
-  \csname thesis_setup_cref:\endcsname
+  \__sdsthesis_setup_theorems:
+  \__sdsthesis_setup_cref:
 }
+
+\ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 付録の設定
@@ -776,7 +834,7 @@
   \noappendicestocpagenum
   \addappheadtotoc
   \renewcommand{\thechapter}{\Alph{chapter}}
-  \titleformat{\chapter}[display]{\LARGE\bfseries\sffamily}{{\tl_use:N \l_appendix_name_tl}\space\thechapter}{0pt}{}
+  \titleformat{\chapter}[display]{\LARGE\bfseries\sffamily}{{\tl_use:N \l__sdsthesis_appendix_name_tl}\space\thechapter}{0pt}{}
 }{%
   \end{oldappendices}
 }
