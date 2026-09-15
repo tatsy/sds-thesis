@@ -15,9 +15,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        engine:
+          - lualatex
+          - xelatex
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Make Japanese/English sources
         run: |
@@ -26,7 +32,8 @@ jobs:
       - name: Set up LaTeX environment
         uses: xu-cheng/latex-action@v4
         with:
-          latexmk_use_lualatex: true
+          latexmk_use_lualatex: ${{ matrix.engine == 'lualatex' }}
+          latexmk_use_xelatex: ${{ matrix.engine == 'xelatex' }}    
           root_file: |
             main_ja.tex
             main_en.tex
@@ -41,6 +48,7 @@ jobs:
           python3 tests/check.py check
 
       - name: Upload PDF artifact
+        if: matrix.engine == 'lualatex'
         uses: actions/upload-artifact@v5
         with:
           name: pdf-artifact
