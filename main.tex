@@ -97,23 +97,20 @@
 
 % ***** タイトルページ *****
 % 卒業論文の場合 (既定)
-\thesistype{令和7年度~卒業論文}
-\title{卒業・修了論文の書き方}
-\author{山田 太郎} % 自分の名前
-\affiliation{一橋大学\\[.5\zh]ソーシャル・データサイエンス学部}
-\date{2026年3月 提出}
-% 修士論文の場合は\thesistypeと\affiliationを次のように変更する
-% \thesistype{令和7年度~修士論文}
-% \affiliation{一橋大学大学院\\[.5\zh]ソーシャル・データサイエンス研究科 修士課程}
-
-% 英語の情報 (englishオプションを指定した場合に表紙に表示される。日本語の場合は不要)
-\etitle{How to Write a Graduation Thesis}
-\eauthor{Taro Yamada} % 自分の名前 (英語)
-\eaffiliation{School of Social Data Science\\Hitotsubashi University}
-% 修士論文の場合: \eaffiliation{Graduate School of Social Data Science\\Hitotsubashi University}
-\edate{March, 2026}
-% 日本語タイトルと英語タイトルの間のスペース (englishオプションのときのみ使用)
-\adjustspace{80truept}
+\thesissetup{
+ type={令和7年度~卒業論文},
+ title={卒業・修了論文の書き方},
+ author={山田 太郎},
+ affiliation={一橋大学\\[.5\zh]ソーシャル・データサイエンス学部},
+ date={2026年3月 提出},
+ % 英語の情報 (englishオプションを指定した場合に表紙に表示される。日本語の場合は不要)
+ etitle={How to Write a Graduation Thesis},
+ eauthor={Taro Yamada},
+ eaffiliation={School of Social Data Science\\Hitotsubashi University},
+ edate={March, 2026},
+ % 日本語タイトルと英語タイトルの間のスペース (englishオプションのときのみ使用)
+ adjustspace={80truept},
+}
 
 % ------------------------------------------------------------------------------
 % 実際の文章の開始
