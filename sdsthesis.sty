@@ -5,10 +5,6 @@
 % ------------------------------------------------------------------------------
 % スタイルファイルオプションの設定
 % ------------------------------------------------------------------------------
-\RequirePackage{iftex}
-\RequirePackage{ifthen}
-\RequirePackage{letltxmacro}
-\RequirePackage{etoolbox}
 
 \ExplSyntaxOn
   % 言語設定のオプション
@@ -39,7 +35,9 @@
     punctuation .initial:n = comma,
     punctuation .value_required:n = true,
     unknown .code:n = {
-      \PackageWarning{sdsthesis}{Unknown option `\CurrentOption' ignored}
+      \msg_new:nn {sdsthesis}{unknown-option}
+        {Unknown~option~`#1'~ignored.}
+      \msg_warning:nnn {sdsthesis}{unknown-option}{#1}
     },
   }
   \ProcessKeyOptions[ sdsthesis ]
@@ -49,8 +47,9 @@
   {
     \sys_if_engine_xetex:F
     {
-      \PackageError{sdsthesis}{Only~XeTeX~and~LuaTeX~are~supported}
-      {Compile~this~document~with~LuaLaTeX~or~XeLaTeX.}
+      \msg_new:nnn {sdsthesis}{unsupported-engine}
+        {Only~LuaTeX~and~XeTeX~are~supported.}
+      \msg_fatal:nn{sdsthesis}{unsupported-engine}
     }
   }
 \ExplSyntaxOff
@@ -302,7 +301,8 @@
     \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {22pt}
   }
 
-  \dim_const:Nn \c__sdsthesis_content_height_dim {
+  \dim_new:N \l__sdsthesis_content_height_dim 
+  \dim_set:Nn \l__sdsthesis_content_height_dim {
     132pt
     + \l__sdsthesis_type_to_title_sep_dim
     + \l__sdsthesis_title_to_author_sep_dim
@@ -312,14 +312,14 @@
   }
 
   \bool_if:NTF \l__sdsthesis_english_bool{
-    \dim_set:Nn \c__sdsthesis_content_height_dim {2 \c__sdsthesis_content_height_dim}
+    \dim_set:Nn \l__sdsthesis_content_height_dim {2 \l__sdsthesis_content_height_dim}
   }{
-    \dim_set:Nn \c__sdsthesis_content_height_dim {\c__sdsthesis_content_height_dim}
+    \dim_set:Nn \l__sdsthesis_content_height_dim {\l__sdsthesis_content_height_dim}
   }
 
-  \dim_new:N \l_title_page_top_sep_dim
-  \dim_set:Nn \l_title_page_top_sep_dim { 
-    (\c__sdsthesis_text_height_dim - \c__sdsthesis_content_height_dim) / 2
+  \dim_new:N \l__sdsthesis_title_page_top_sep_dim
+  \dim_set:Nn \l__sdsthesis_title_page_top_sep_dim { 
+    (\c__sdsthesis_text_height_dim - \l__sdsthesis_content_height_dim) / 2
   }
 \ExplSyntaxOff
 
@@ -367,7 +367,7 @@
 \ExplSyntaxOn
 \cs_new_protected:Npn \__sdsthesis_make_title: {
   % 日本語タイトル
-  \vspace*{\dim_use:N \l_title_page_top_sep_dim}
+  \vspace*{\dim_use:N \l__sdsthesis_title_page_top_sep_dim}
   {
     \bfseries\sffamily\Large
     \tl_use:N \g__sdsthesis_type_tl
@@ -532,13 +532,13 @@
 }
 
 \ExplSyntaxOn
-  \dim_new:N \l_chapabst_below_skip_dim
-  \dim_set:Nn \l_chapabst_below_skip_dim {5mm}
+  \dim_new:N \l__sdsthesis_chapabst_below_skip_dim
+  \dim_set:Nn \l__sdsthesis_chapabst_below_skip_dim {5mm}
   \NewDocumentEnvironment{chapabst}{}{%
     \setlength\rightskip{1in}%
     \begin{small}\noindent\textbf{\textsf{\tl_use:N \l__sdsthesis_chapabst_name_tl :}}~
   }{%
-    \end{small}\vspace{\dim_use:N \l_chapabst_below_skip_dim}
+    \end{small}\vspace{\dim_use:N \l__sdsthesis_chapabst_below_skip_dim}
   }
 \ExplSyntaxOff
 
@@ -562,7 +562,7 @@
 \bool_if:NF \l__sdsthesis_english_bool {
   \RenewDocumentCommand{\chaptermark}{m}{\markboth{第\,\thechapter\,章\quad #1}{}}
   \RenewDocumentCommand{\sectionmark}{m}{\markright{\thesection\quad #1}{}}
-  \AtBeginEnvironment{appendices}{%
+  \AddToHook{env/appendices/begin}{%
     \RenewDocumentCommand{\chaptermark}{m}{\markboth{付録\,\thechapter\quad #1}{}}
   }
 }
@@ -740,7 +740,7 @@
   }
 }
 
-\AtEndPreamble{
+\AddToHook{begindocument/before}{
   \__sdsthesis_load_hyperref:
 
   \hypersetup{
@@ -811,7 +811,7 @@
   }
 }
 
-\AtEndPreamble{
+\AddToHook{begindocument/before}{
   \usepackage[noabbrev,capitalize]{cleveref}
 
   \renewcommand{\thesection}{\thechapter.\arabic{section}}
@@ -826,9 +826,11 @@
 % ------------------------------------------------------------------------------
 % 付録の設定
 % ------------------------------------------------------------------------------
-\LetLtxMacro{\oldappendices}{\appendices}
-\LetLtxMacro{\endoldappendices}{\endappendices}
+\NewCommandCopy\oldappendices\appendices
+\NewCommandCopy\endoldappendices\endappendices
+
 \ExplSyntaxOn
+
 \RenewDocumentEnvironment{appendices}{}{%
   \begin{oldappendices}
   \noappendicestocpagenum
@@ -838,6 +840,7 @@
 }{%
   \end{oldappendices}
 }
+
 \ExplSyntaxOff
 
 \renewcommand{\@redotocentry@pp}[1]{%
