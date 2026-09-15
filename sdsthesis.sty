@@ -7,58 +7,60 @@
 % ------------------------------------------------------------------------------
 
 \ExplSyntaxOn
-  % 言語設定のオプション
-  \bool_new:N \l__sdsthesis_english_bool
 
-  % ロゴの表示のオプション
-  \bool_new:N \l__sdsthesis_nologo_bool
+% 言語設定のオプション
+\bool_new:N \l__sdsthesis_english_bool
 
-  % 句読点のオプション (comma: 「，」「．」に統一, kuten: 「、」「。」に統一)
-  \tl_new:N \l__sdsthesis_punctuation_tl
-  \tl_set:Nn \l__sdsthesis_punctuation_tl {comma}
+% ロゴの表示のオプション
+\bool_new:N \l__sdsthesis_nologo_bool
 
-  % PDF/Aのメタデータを埋め込むオプション (既定は無効)
-  \bool_new:N \l__sdsthesis_pdfa_bool
+% 句読点のオプション (comma: 「，」「．」に統一, kuten: 「、」「。」に統一)
+\tl_new:N \l__sdsthesis_punctuation_tl
 
-  % オプションの処理
-  \keys_define:nn {sdsthesis}{
-    english .bool_set:N = \l__sdsthesis_english_bool,
-    nologo .bool_set:N = \l__sdsthesis_nologo_bool,
-    pdfa .bool_set:N = \l__sdsthesis_pdfa_bool,
-    punctuation .choices:nn =
-      {comma, kuten}
-      { 
-        \tl_set:NV
-          \l__sdsthesis_punctuation_tl
-          \l_keys_choice_tl
-      },
-    punctuation .initial:n = comma,
-    punctuation .value_required:n = true,
-    unknown .code:n = {
-      \msg_new:nn {sdsthesis}{unknown-option}
-        {Unknown~option~`#1'~ignored.}
-      \msg_warning:nnn {sdsthesis}{unknown-option}{#1}
+% PDF/Aのメタデータを埋め込むオプション (既定は無効)
+\bool_new:N \l__sdsthesis_pdfa_bool
+
+% エラー・警告メッセージの定義
+\msg_new:nnn {sdsthesis}{unknown-option}
+  {Unknown~option~`#1'~ignored.}
+\msg_new:nnn {sdsthesis}{unsupported-engine}
+  {Only~LuaTeX~and~XeTeX~are~supported.}
+
+% オプションの処理
+\keys_define:nn {sdsthesis}{
+  english .bool_set:N = \l__sdsthesis_english_bool,
+  nologo .bool_set:N = \l__sdsthesis_nologo_bool,
+  pdfa .bool_set:N = \l__sdsthesis_pdfa_bool,
+  punctuation .choices:nn =
+    {comma, kuten}
+    { 
+      \tl_set:NV
+        \l__sdsthesis_punctuation_tl
+        \l_keys_choice_tl
     },
-  }
-  \ProcessKeyOptions[ sdsthesis ]
+  punctuation .initial:n = comma,
+  punctuation .value_required:n = true,
+  unknown .code:n = {
+    \msg_warning:nnn {sdsthesis}{unknown-option}{\l_keys_key_str}
+  },
+}
+\ProcessKeyOptions[ sdsthesis ]
 
-  % LuaTeXかXeTeXのみをサポート
-  \sys_if_engine_luatex:F
+% LuaTeXかXeTeXのみをサポート
+\sys_if_engine_luatex:F
+{
+  \sys_if_engine_xetex:F
   {
-    \sys_if_engine_xetex:F
-    {
-      \msg_new:nnn {sdsthesis}{unsupported-engine}
-        {Only~LuaTeX~and~XeTeX~are~supported.}
-      \msg_fatal:nn{sdsthesis}{unsupported-engine}
-    }
+    \msg_fatal:nn{sdsthesis}{unsupported-engine}
   }
+}
+
 \ExplSyntaxOff
 
 % ------------------------------------------------------------------------------
 % 必要なパッケージ
 % ------------------------------------------------------------------------------
 \RequirePackage{mathtools}
-\RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{amsthm}
 \RequirePackage[svgnames,dvipsnames,x11names]{xcolor}
@@ -311,10 +313,8 @@
     + \l__sdsthesis_before_logo_sep_dim
   }
 
-  \bool_if:NTF \l__sdsthesis_english_bool{
+  \bool_if:NT \l__sdsthesis_english_bool{
     \dim_set:Nn \l__sdsthesis_content_height_dim {2 \l__sdsthesis_content_height_dim}
-  }{
-    \dim_set:Nn \l__sdsthesis_content_height_dim {\l__sdsthesis_content_height_dim}
   }
 
   \dim_new:N \l__sdsthesis_title_page_top_sep_dim
@@ -532,13 +532,12 @@
 }
 
 \ExplSyntaxOn
-  \dim_new:N \l__sdsthesis_chapabst_below_skip_dim
-  \dim_set:Nn \l__sdsthesis_chapabst_below_skip_dim {5mm}
+  \dim_const:Nn \c__sdsthesis_chapabst_below_skip_dim {5mm}
   \NewDocumentEnvironment{chapabst}{}{%
     \setlength\rightskip{1in}%
     \begin{small}\noindent\textbf{\textsf{\tl_use:N \l__sdsthesis_chapabst_name_tl :}}~
   }{%
-    \end{small}\vspace{\dim_use:N \l__sdsthesis_chapabst_below_skip_dim}
+    \end{small}\vspace{\dim_use:N \c__sdsthesis_chapabst_below_skip_dim}
   }
 \ExplSyntaxOff
 
@@ -547,15 +546,20 @@
 % ------------------------------------------------------------------------------
 
 % ヘッダの下の横線
-\pagestyle{fancyplain}
+\pagestyle{fancy}
+\fancyhf{}
 
 % ヘッダの内容
-\fancyhead{}
-\fancyhead[RO,RE]{\rightmark}
-\fancyhead[LE,LO]{\leftmark}
-\fancyhead[RE]{\gdef\headrulewidth{.4pt}}
-\fancyhead[LO]{\gdef\headrulewidth{.4pt}}
+\fancyhead[RO]{\rightmark}
+\fancyhead[LE]{\leftmark}
 \fancyfoot[C]{--\,\thepage\,--}
+
+\renewcommand{\headrulewidth}{.4pt}
+
+\fancypagestyle{plain}{
+  \fancyhead{}
+  \renewcommand{\headrulewidth}{0pt}
+}
 
 %ヘッダ記述。 ~ で章・節番号とそのタイトルの間のスペースを調整
 \ExplSyntaxOn
@@ -573,32 +577,6 @@
 \fancypagestyle{plain}{%
   \fancyhead{}%
   \renewcommand{\headrulewidth}{0pt}% Line at the header invisible
-}
-
-% ------------------------------------------------------------------------------
-% 参考文献が目次に載るようにする。
-% http://www.nsknet.or.jp/~tony/TeX/faq/macro.htm
-% ------------------------------------------------------------------------------
-\RenewDocumentEnvironment{thebibliography}{m}{% 再定義
-  \chapter*{\biblioname\@mkboth{\biblioname}{\biblioname}}%
-  \addcontentsline{toc}{chapter}{\biblioname}% この行追加
-  \list{\@biblabel{\@arabic\c@enumiv}}%
-    {\settowidth\labelwidth{\@biblabel{#1}}%
-      \leftmargin\labelwidth
-      \advance\leftmargin\labelsep
-      \@openbib@code
-      \usecounter{enumiv}%
-      \let\p@enumiv\@empty
-      \renewcommand\theenumiv{\@arabic\c@enumiv}}%
-  \sloppy
-  \clubpenalty4000
-  \@clubpenalty\clubpenalty
-  \widowpenalty4000%
-  \sfcode`\.\@m
-}{%
-  \def\@noitemerr%
-    {\@latex@warning{Empty `thebibliography' environment}}%
-  \endlist
 }
 
 % ------------------------------------------------------------------------------
@@ -740,23 +718,6 @@
   }
 }
 
-\AddToHook{begindocument/before}{
-  \__sdsthesis_load_hyperref:
-
-  \hypersetup{
-    pdfencoding=auto,
-    backref=true,
-    bookmarks=true,
-    bookmarksnumbered=true,
-    bookmarksopen=true,
-    colorlinks=true,
-    linktocpage=true,         % 目次においてページ番号にリンクをつける
-    linkcolor=RoyalBlue,      % 主に章や節の番号のリンク
-    citecolor=RoyalBlue,      % 文献の引用
-    urlcolor=Magenta,         % URL
-  }
-}
-
 \ExplSyntaxOff
 
 % ***** CleverRefの設定 *****
@@ -811,14 +772,33 @@
   }
 }
 
-\AddToHook{begindocument/before}{
-  \usepackage[noabbrev,capitalize]{cleveref}
+\cs_new_protected:Npn \__sdsthesis_setup_references: {
+  \__sdsthesis_load_hyperref:
+
+  \hypersetup{
+    pdfencoding=auto,
+    backref=true,
+    bookmarks=true,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    colorlinks=true,
+    linktocpage=true,         % 目次においてページ番号にリンクをつける
+    linkcolor=RoyalBlue,      % 主に章や節の番号のリンク
+    citecolor=RoyalBlue,      % 文献の引用
+    urlcolor=Magenta,         % URL
+  }
+
+  \RequirePackage[noabbrev,capitalize]{cleveref}
 
   \renewcommand{\thesection}{\thechapter.\arabic{section}}
   \renewcommand{\thesubsection}{\thechapter.\arabic{section}.\arabic{subsection}}
 
   \__sdsthesis_setup_theorems:
   \__sdsthesis_setup_cref:
+}
+
+\AddToHook{begindocument/before}{
+  \__sdsthesis_setup_references:
 }
 
 \ExplSyntaxOff
@@ -844,7 +824,7 @@
 \ExplSyntaxOff
 
 \renewcommand{\@redotocentry@pp}[1]{%
-  \LetLtxMacro{\oldacl@pp}{\addcontentsline}
+  \NewCommandCopy\oldacl@pp\addcontentsline
   \def\addcontentsline##1##2##3{%
     \def\@pptempa{##1}\def\@pptempb{toc}%
     \ifx\@pptempa\@pptempb
@@ -865,7 +845,7 @@
 % Recent LaTeX kernels (first aid for cleveref, 2024-10 and later) recompute
 % the label type from the raw counter name in the `label' hook, which bypasses
 % cleveref's \appendix hook, so the aliases are also declared explicitly.
-\AtBeginEnvironment{appendices}{
+\AddToHook{env/appendices/begin}{
   \pagestyle{plain}
   \appendix
   \crefalias{chapter}{appendix}
