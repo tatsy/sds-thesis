@@ -6,33 +6,37 @@
 \else
   \usepackage[nologo]{sdsthesis}
 \fi\fi
-\thesistype{回帰テスト}
-\title{表紙と参照の確認}
-\author{山田 太郎}
-\affiliation{ソーシャル・データサイエンス学部}
-\date{2026年3月 提出}
+
+\thesissetup{
+  type={回帰テスト},
+  title={表紙と参照の確認},
+  author={山田 太郎},
+  affiliation={ソーシャル・データサイエンス学部},
+  date={2026年3月 提出}
+}
 % Japanese mode must compile without any English metadata.
 \ifdefined\SdsTestEnglish
-  \etitle{Regression test}
-  \eauthor{Taro Yamada}
-  \eaffiliation{School of Social Data Science}
-  \edate{March, 2026}
-  \adjustspace{40pt}
+  \titlesetup{
+    etitle={Regression test},
+    eauthor={Taro Yamada},
+    eaffiliation={School of Social Data Science},
+    edate={March, 2026}
+  }
 \fi
 \begin{document}
 \frontmatter
 \maketitle
 \begin{abstract}
-ABSTRACT-START.
-\newcount\abstractparagraph
-\abstractparagraph=0
-\loop
+  ABSTRACT-START.
+  \newcount\abstractparagraph
+  \abstractparagraph=0
+  \loop
   This paragraph checks that a long abstract can break across pages.
   日本語と英語を含む長い概要を、ページからはみ出さずに表示します。
   The next paragraph must remain visible and inside the page margins.\par
   \advance\abstractparagraph by 1
-\ifnum\abstractparagraph<35\repeat
-ABSTRACT-END.
+  \ifnum\abstractparagraph<35\repeat
+  ABSTRACT-END.
 \end{abstract}
 \tableofcontents
 \mainmatter
@@ -51,25 +55,25 @@ Forward: \cref{chap:appendix}; \cref{sec:appendix};
 \begin{proof*}A proof.\end{proof*}
 \cref{thm:test}; \cref{lem:test}; \cref{def:test}; \cref{prop:test}.
 \begin{appendices}
-\chapter{追加の検証}\label{chap:appendix}
-\section{付録の節}\label{sec:appendix}
-\subsection{付録の項}\label{subsec:appendix}
-Backward: \cref{chap:body}; \cref{sec:body}; \cref{eq:body}.
-Self: \cref{chap:appendix}; \cref{sec:appendix}.
-\begin{equation}\label{eq:appendix}x=2\end{equation}
-\begin{equation}\label{eq:appendix-two}x=3\end{equation}
-\begin{equation}\label{eq:appendix-three}x=4\end{equation}
-Range: \crefrange{eq:appendix}{eq:appendix-three}.
-Multiple: \cref{eq:body,eq:appendix}.
-\begin{figure}[htbp]
-  \centering\rule{30mm}{10mm}
-  \caption{付録の図}\label{fig:appendix}
-\end{figure}
-\begin{table}[htbp]
-  \caption{付録の表}\label{tab:appendix}
-  \centering\begin{tabular}{cc}A&B\\1&2\end{tabular}
-\end{table}
-\chapter{次の付録}\label{chap:appendix-b}
-\begin{equation}\label{eq:appendix-b}x=5\end{equation}
+  \chapter{追加の検証}\label{chap:appendix}
+  \section{付録の節}\label{sec:appendix}
+  \subsection{付録の項}\label{subsec:appendix}
+  Backward: \cref{chap:body}; \cref{sec:body}; \cref{eq:body}.
+  Self: \cref{chap:appendix}; \cref{sec:appendix}.
+  \begin{equation}\label{eq:appendix}x=2\end{equation}
+  \begin{equation}\label{eq:appendix-two}x=3\end{equation}
+  \begin{equation}\label{eq:appendix-three}x=4\end{equation}
+  Range: \crefrange{eq:appendix}{eq:appendix-three}.
+  Multiple: \cref{eq:body,eq:appendix}.
+  \begin{figure}[htbp]
+    \centering\rule{30mm}{10mm}
+    \caption{付録の図}\label{fig:appendix}
+  \end{figure}
+  \begin{table}[htbp]
+    \caption{付録の表}\label{tab:appendix}
+    \centering\begin{tabular}{cc}A&B\\1&2\end{tabular}
+  \end{table}
+  \chapter{次の付録}\label{chap:appendix-b}
+  \begin{equation}\label{eq:appendix-b}x=5\end{equation}
 \end{appendices}
 \end{document}
