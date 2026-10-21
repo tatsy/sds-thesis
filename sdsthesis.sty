@@ -12,7 +12,7 @@
 \bool_new:N \l__sdsthesis_english_bool
 
 % ロゴの表示のオプション
-\bool_new:N \l__sdsthesis_nologo_bool
+\bool_new:N \l__sdsthesis_logo_bool
 
 % 句読点のオプション (comma: 「，」「．」に統一, kuten: 「、」「。」に統一)
 \tl_new:N \l__sdsthesis_punctuation_tl
@@ -29,7 +29,7 @@
 % オプションの処理
 \keys_define:nn {sdsthesis}{
   english .bool_set:N = \l__sdsthesis_english_bool,
-  nologo .bool_set:N = \l__sdsthesis_nologo_bool,
+  logo .bool_set:N = \l__sdsthesis_logo_bool,
   pdfa .bool_set:N = \l__sdsthesis_pdfa_bool,
   punctuation .choices:nn =
     {comma, kuten}
@@ -304,10 +304,10 @@
   \dim_set:Nn \l__sdsthesis_affiliation_to_date_sep_dim {44pt}
 }
 
-\bool_if:NTF \l__sdsthesis_nologo_bool{
-  \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {0pt}
-}{
+\bool_if:NTF \l__sdsthesis_logo_bool{
   \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {22pt}
+}{
+  \dim_set:Nn \l__sdsthesis_before_logo_sep_dim {0pt}
 }
 
 \ExplSyntaxOff
@@ -358,35 +358,35 @@
 % 日本語用の表紙コマンド
 \cs_new_protected:Npn \__sdsthesis_make_jp_title: {
   {
-    \bfseries\sffamily\Large
+    \bfseries\sffamily\LARGE
     \tl_use:N \g__sdsthesis_type_tl
   }
   \par
 
   \vspace*{\dim_use:N \l__sdsthesis_type_to_title_sep_dim}
   {
-    \bfseries\sffamily\LARGE
+    \bfseries\sffamily\huge
     \@title
   }
   \par
 
   \vspace*{\dim_use:N \l__sdsthesis_title_to_author_sep_dim}
   {
-    \Large
+    \LARGE
     \@author
   }
   \par
   
   \vspace*{\dim_use:N \l__sdsthesis_author_to_affiliation_sep_dim}
   {
-    \Large
+    \LARGE
     {\tl_use:N \g__sdsthesis_affiliation_tl}
   }
   \par
 
   \vspace*{\dim_use:N \l__sdsthesis_affiliation_to_date_sep_dim}
   {
-    \Large
+    \LARGE
     \@date
   }
   \par
@@ -396,28 +396,28 @@
 \cs_new_protected:Npn \__sdsthesis_make_en_title: {
   \bool_if:NT \l__sdsthesis_english_bool{
     {
-      \rmfamily\LARGE
+      \rmfamily\huge
       \tl_use:N \g__sdsthesis_etitle_tl
     }
     \par
 
     \vspace*{\dim_use:N \l__sdsthesis_title_to_author_sep_dim}
     {
-      \Large
+      \LARGE
       \tl_use:N \g__sdsthesis_eauthor_tl
     }
     \par
 
     \vspace*{\dim_use:N \l__sdsthesis_author_to_affiliation_sep_dim}
     {
-      \Large
+      \LARGE
       \tl_use:N \g__sdsthesis_eaffiliation_tl
     }
     \par
 
     \vspace*{\dim_use:N \l__sdsthesis_affiliation_to_date_sep_dim}
     {
-      \Large
+      \LARGE
       \tl_use:N \g__sdsthesis_edate_tl
     }
     \par
@@ -426,7 +426,7 @@
 
 % ロゴの表示
 \cs_new_protected:Npn \__sdsthesis_make_logo: {
-  \bool_if:NF \l__sdsthesis_nologo_bool {
+  \bool_if:NT \l__sdsthesis_logo_bool {
     \hspace{5truemm}
     \includegraphics[height=18truemm]{logo.pdf}
     \hspace{5truemm}
@@ -455,7 +455,7 @@
             \__sdsthesis_make_en_title:
           }
 
-        \bool_if:NF \l__sdsthesis_nologo_bool
+        \bool_if:NT \l__sdsthesis_logo_bool
           {
             \vspace{\l__sdsthesis_before_logo_sep_dim}
             \__sdsthesis_make_logo:
@@ -480,7 +480,7 @@
   \__sdsthesis_set_pdf_metadata:
 
   \thispagestyle{empty}
-  \fancypage{\coverpagebox}{}
+  % \fancypage{\coverpagebox}{}
 
   \__sdsthesis_make_title:
 	
